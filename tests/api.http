@@ -1,0 +1,18 @@
+//GET http://localhost:3333/api/v1/brand
+
+POST http://localhost:3333/api/v1/order
+
+### POST pour créer une commande
+POST http://localhost:3333/api/v1/order
+Content-Type: application/json
+Accept: application/json
+
+{
+  "phoneNumber": "+22674505480",
+  "productId": 1,
+  "customerName": "Aude Toé",
+  "quantity": "1"
+}
+
+
+
