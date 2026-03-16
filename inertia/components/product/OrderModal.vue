@@ -74,7 +74,7 @@
 
             <div>
               <label for="name" class="block text-sm font-medium text-text-title mb-1">
-                Nom complet <span class="text-state-error">*</span>
+                Nom de l'entreprise <span class="text-state-error">*</span>
               </label>
               <input
                 type="text"
@@ -82,7 +82,7 @@
                 v-model="formData.name"
                 class="w-full p-3 border border-background-tertiary rounded-md focus:outline-none focus:border-primary"
                 :class="{'border-state-error': errors.customerName}"
-                placeholder="Entrez votre nom complet"
+                placeholder="Entrez le nom de votre entreprise"
                 :readonly="!!user"
               />
               <p v-if="errors.customerName" class="text-primary mt-1 text-sm">{{ errors.customerName }}</p>

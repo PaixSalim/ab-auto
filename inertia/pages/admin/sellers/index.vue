@@ -17,7 +17,7 @@
           <thead class="bg-gray-100">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom complet</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom de l'entreprise</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
@@ -63,7 +63,7 @@
           <h2 class="text-2xl font-bold mb-4">Créer un nouveau vendeur</h2>
           <form @submit.prevent="createSeller">
             <div class="mb-4">
-              <label class="block text-sm font-medium mb-2">Nom complet</label>
+              <label class="block text-sm font-medium mb-2">Nom de l'entreprise</label>
               <input v-model="formData.fullName" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required />
             </div>
             <div class="mb-4">
@@ -93,7 +93,7 @@
           <h2 class="text-2xl font-bold mb-4">Modifier le vendeur</h2>
           <form @submit.prevent="updateSeller">
             <div class="mb-4">
-              <label class="block text-sm font-medium mb-2">Nom complet</label>
+              <label class="block text-sm font-medium mb-2">Nom de l'entreprise</label>
               <input v-model="editData.fullName" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" required />
             </div>
             <div class="mb-4">

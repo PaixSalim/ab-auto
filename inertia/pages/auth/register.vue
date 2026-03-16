@@ -106,8 +106,8 @@ function handleSubmit() {
           <InputComponent
             id="fullName"
             type="text"
-            placeholder="Entrez votre nom complet"
-            label="Nom complet"
+            placeholder="Entrez le nom de votre entreprise"
+            label="Nom de l'entreprise"
             v-model="fullName"
           />
 
