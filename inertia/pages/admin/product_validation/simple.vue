@@ -47,7 +47,7 @@ const approveProduct = (productId: number) => {
   // Afficher notification de chargement
   showToast('info', 'Validation', 'Approbation du produit en cours...')
   
-  router.post('/admin/validation/approve', { productId }, {
+  router.post('/dashboard/validation/approve', { productId }, {
     onSuccess: () => {
       showToast('success', 'Produit approuvé', 'Le produit a été approuvé avec succès et est maintenant visible en boutique.')
     },
@@ -69,7 +69,7 @@ const rejectProduct = () => {
   // Afficher notification de chargement
   showToast('info', 'Validation', 'Rejet du produit en cours...')
   
-  router.post('/admin/validation/reject', { 
+  router.post('/dashboard/validation/reject', { 
     productId: selectedProduct.value.id, 
     reason: rejectionReason.value 
   }, {

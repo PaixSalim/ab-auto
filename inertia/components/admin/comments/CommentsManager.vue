@@ -569,7 +569,7 @@ const saveComment = () => {
   try {
     const index = comments.value.findIndex(c => c.id === editModal.value.comment.id)
     if (index !== -1) {
-      router.put(`/admin/comments/update/`, { id: editModal.value.comment.id, comment: editModal.value.comment.comment,
+      router.put(`/dashboard/comments/update/`, { id: editModal.value.comment.id, comment: editModal.value.comment.comment,
       user: editModal.value.comment.user, isActive: editModal.value.comment.isActive }, { preserveState: true , onSuccess: () => {
           comments.value[index] = { ...editModal.value.comment }
           showNotification('Commentaire modifié avec succès', 'success')
@@ -589,7 +589,7 @@ const toggleCommentStatus = (comment: CommentRequest) => {
     const index = comments.value.findIndex(c => c.id === comment.id)
     if (index !== -1) {
       comments.value[index].isActive = !comments.value[index].isActive
-      router.put('/admin/comments/toggle-status', { commentId: comment.id, status: comments.value[index].isActive }, { preserveState: true ,
+      router.put('/dashboard/comments/toggle-status', { commentId: comment.id, status: comments.value[index].isActive }, { preserveState: true ,
       onSuccess: () => {
         showNotification(
           `Commentaire ${comments.value[index].isActive ? 'activé' : 'désactivé'} avec succès`,
@@ -616,7 +616,7 @@ const confirmDelete = (comment: CommentResponse) => {
 const deleteComment = () => {
   try {
     if (deleteModal.value.commentId) {
-      router.delete(`/admin/comments/delete/${deleteModal.value.commentId}`, { preserveState: true ,
+      router.delete(`/dashboard/comments/delete/${deleteModal.value.commentId}`, { preserveState: true ,
         onSuccess: () => {
           comments.value = comments.value.filter(c => c.id !== deleteModal.value.commentId)
           showNotification('Commentaire supprimé avec succès', 'success')

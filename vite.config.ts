@@ -12,6 +12,9 @@ export default defineConfig({
     UnoCSS(),
     adonisjs({ entrypoints: ['inertia/app/app.ts'], reload: ['resources/views/**/*.edge'] }),
   ],
+  server: {
+    host: true,
+  },
 
   /**
    * Define aliases for importing modules from

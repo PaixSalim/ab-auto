@@ -45,6 +45,16 @@
 
       <!-- Page Content -->
       <main class="flex-1 overflow-x-hidden overflow-y-auto">
+        <!-- Validation Warning Banner -->
+        <div v-if="user && !user.isValidated" class="bg-amber-50 border-b border-amber-200 p-4 animate-pulse">
+          <div class="flex items-center justify-center gap-3 text-amber-800 max-w-4xl mx-auto">
+            <div class="i-mdi-alert-circle text-2xl flex-none" />
+            <div class="text-sm font-medium">
+              Votre compte vendeur est en cours de validation par l'administration. 
+              <span class="font-bold">Certaines fonctionnalités peuvent être limitées</span> jusqu'à ce que votre dossier soit approuvé.
+            </div>
+          </div>
+        </div>
         <slot></slot>
       </main>
     </div>
@@ -62,8 +72,11 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import Sidebar from '~/components/seller/dashboard/Sidebar.vue'
 import Notification from '~/components/Notification.vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
+const page = usePage()
+const user = computed(() => (page.props as any).auth?.user)
 const isSidebarOpen = ref(false)
 
 const toggleSidebar = () => {

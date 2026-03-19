@@ -44,7 +44,7 @@ const selectedProduct = ref<Product | null>(null)
 const rejectionReason = ref('')
 
 const approveProduct = (productId: number) => {
-  router.post('/admin/validation/approve', { productId }, {
+  router.post('/dashboard/validation/approve', { productId }, {
     onSuccess: () => {
       // Success notification handled by flash message
     }
@@ -60,7 +60,7 @@ const openRejectModal = (product: Product) => {
 const rejectProduct = () => {
   if (!selectedProduct.value || !rejectionReason.value.trim()) return
   
-  router.post('/admin/validation/reject', { 
+  router.post('/dashboard/validation/reject', { 
     productId: selectedProduct.value.id, 
     reason: rejectionReason.value 
   }, {

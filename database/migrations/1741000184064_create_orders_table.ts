@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.increments('id')
       table
         .integer('product_id')
+        .unsigned()
         .references('id')
         .inTable('products')
         .onDelete('CASCADE')

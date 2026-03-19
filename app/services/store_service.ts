@@ -270,4 +270,13 @@ export class StoreService {
   async getPartners() {
     return Partner.query().select('id', 'image', 'label')
   }
+
+  async getCategoryTree() {
+    const categories = await Category.query()
+      .whereNull('parentId')
+      .preload('subCategories', (query) => {
+        query.preload('subCategories') // Load up to 2 levels for now, or use recursive function if needed
+      })
+    return categories
+  }
 }

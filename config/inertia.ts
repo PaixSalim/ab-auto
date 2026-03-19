@@ -12,14 +12,38 @@ const inertiaConfig = defineConfig({
    */
   sharedData: {
     notification: (ctx) => ctx.session.flashMessages.get('notification'),
-    auth: (ctx) => ({
-      user: ctx.auth.user ? {
-        id: ctx.auth.user.id,
-        email: ctx.auth.user.email,
-        fullName: ctx.auth.user.fullName,
-        role: ctx.auth.user.role,
-      } : null,
-    }),
+    auth: async (ctx) => {
+      if (!ctx.auth.user) return { user: null, roles: [], permissions: [] }
+
+      const user = ctx.auth.user
+      await user.load('roles')
+      const roles = user.roles ?? []
+      const roleNames = roles.map((r: any) => r.slug)
+
+      // Superadmin gets all permissions implicitly
+      const isSuperAdmin = roleNames.includes('superadmin')
+      let permissionSlugs: string[] = []
+      if (!isSuperAdmin) {
+        for (const role of roles) {
+          await role.load('permissions')
+          const slugs = role.permissions?.map((p: any) => p.slug) ?? []
+          permissionSlugs.push(...slugs)
+        }
+        permissionSlugs = [...new Set(permissionSlugs)]
+      }
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+        },
+        roles: roleNames,
+        permissions: permissionSlugs,
+        isSuperAdmin,
+      }
+    },
   },
 
   /**

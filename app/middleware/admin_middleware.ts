@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
-import { UserStatus } from '#dto/user_types'
 
 export default class AdminMiddleware {
   async handle({ auth, response }: HttpContext, next: NextFn) {
@@ -10,7 +9,12 @@ export default class AdminMiddleware {
       return response.redirect('/auth/login')
     }
 
-    if (user.role !== UserStatus.ADMIN) {
+    // Check roles via pivot table (role_user) OR the legacy user.role column
+    await user.load('roles')
+    const roleNames = user.roles?.map((r: any) => r.slug) ?? []
+    const isAdmin = roleNames.includes('admin') || roleNames.includes('superadmin') || user.role === 'admin'
+
+    if (!isAdmin) {
       return response.redirect('/')
     }
 

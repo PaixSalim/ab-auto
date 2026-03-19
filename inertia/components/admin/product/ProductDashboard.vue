@@ -95,7 +95,7 @@ const confirmDelete = (product: GetProductDto) => {
 }
 
 const deleteProduct = () => {
-  router.delete(`/admin/product/delete/${productToDelete.value?.id}`)
+  router.delete(`/dashboard/product/delete/${productToDelete.value?.id}`)
 
   showDeleteConfirm.value = false
   successModifyCallback(`Le produit ${productToDelete.value!.name} a été bien supprimé `)

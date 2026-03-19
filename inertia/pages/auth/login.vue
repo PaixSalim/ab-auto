@@ -9,7 +9,7 @@ import { PopupType } from '#utils/popup_type_utils'
 
 const isLoading = ref(false)
 
-const email = ref('')
+const uid = ref('')
 const password = ref('')
 const showPopup = ref(false)
 const popupType = ref<PopupType>(PopupType.SUCCESS)
@@ -31,18 +31,18 @@ function handleSubmit() {
   }
   isLoading.value = true
   const form = new FormData()
-  form.append('email', email.value.toString().toLowerCase())
+  form.append('uid', uid.value.toString().toLowerCase())
   form.append('password', password.value)
 
   router.post('/auth/login', form, {
     onSuccess: () => {
       isLoading.value = false
     },
-    onError: () => {
+    onError: (errors) => {
       isLoading.value = false
       showPopup.value = true
       popupType.value = PopupType.ERROR
-      popupMessage.value = 'Veuillez activer votre compte ou créer un compte d\'abord'
+      popupMessage.value = Object.values(errors)[0] || 'Une erreur est survenue lors de la connexion'
       setTimeout(() => {
         showPopup.value = false
       }, 3400)
@@ -93,11 +93,11 @@ function handleSubmit() {
           @submit.prevent="handleSubmit"
         >
           <InputComponent
-            id="email"
+            id="uid"
             type="text"
-            placeholder="Entrez votre E-mail"
-            label="Email"
-            v-model="email"
+            placeholder="E-mail ou Téléphone"
+            label="Identifiant"
+            v-model="uid"
           />
 
           <InputComponent

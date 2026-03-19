@@ -9,10 +9,12 @@ import AllProductsGrid from '~/components/AllProductsGrid.vue'
 import Notification from '~/components/Notification.vue'
 import { Head } from '@inertiajs/vue3'
 import SupportAssistant from '~/components/SupportAssistant.vue'
+import RegisterPopup from '~/components/auth/RegisterPopup.vue'
 import { BannerInterface } from '#dto/banners_interface'
 import { PartnerInterface } from '#dto/partners_interface'
 import { GetProductDto } from '#dto/products_interface'
 import { CategoryDto } from '#dto/category_dto'
+import { ref, provide } from 'vue'
 
 defineProps<{
   banners: BannerInterface[]
@@ -20,6 +22,15 @@ defineProps<{
   products: GetProductDto[]
   categories: CategoryDto[]
 }>()
+
+const showRegisterPopup = ref(false)
+const openRegister = () => {
+  showRegisterPopup.value = true
+}
+
+// Provide to children components (Navbars)
+provide('openRegister', openRegister)
+
 const interval: number = 5000
 const autoplay: boolean = true
 
@@ -31,9 +42,10 @@ const autoplay: boolean = true
   </Head>
   <div class="min-h-screen bg-gray-50">
     <Notification />
-    <DesktopNavbar/>
+    <DesktopNavbar />
+    <MobileNavbar />
 
-    <MobileNavbar/>
+    <RegisterPopup :show="showRegisterPopup" @close="showRegisterPopup = false" />
 
     <main class="container mx-auto px-4 py-6">
       <BannerSlider :banners="banners" :interval="interval" :autoplay="autoplay"/>
@@ -51,7 +63,5 @@ const autoplay: boolean = true
   </div>
 </template>
 
-
-<style>
-
+<style scoped>
 </style>

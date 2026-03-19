@@ -153,20 +153,20 @@ function openEditModal(customer: Customer) {
 }
 
 function createCustomer() {
-  router.post('/admin/customers/create', formData.value, {
+  router.post('/dashboard/customers/create', formData.value, {
     onSuccess: () => closeModal(),
   })
 }
 
 function updateCustomer() {
-  router.put('/admin/customers/edit', editData.value, {
+  router.put('/dashboard/customers/edit', editData.value, {
     onSuccess: () => closeModal(),
   })
 }
 
 function deleteCustomer(id: number) {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-    router.delete(`/admin/customers/delete/${id}`)
+    router.delete(`/dashboard/customers/delete/${id}`)
   }
 }
 

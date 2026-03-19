@@ -171,8 +171,8 @@ const closeModal = () => {
 
 const submitCategory = () => {
   const url = editingCategory.value 
-    ? `/admin/categories/edit/${editingCategory.value.id}`
-    : '/admin/categories/create'
+    ? `/dashboard/categories/edit/${editingCategory.value.id}`
+    : '/dashboard/categories/create'
 
   router.post(url, formData.value, {
     onSuccess: () => {
@@ -186,7 +186,7 @@ const submitCategory = () => {
 
 const deleteCategory = (id: number) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-    router.delete(`/admin/categories/delete/${id}`)
+    router.delete(`/dashboard/categories/delete/${id}`)
   }
 }
 </script>

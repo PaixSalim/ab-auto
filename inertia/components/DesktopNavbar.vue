@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import SearchBar from '~/components/SearchBar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 
 const page = usePage()
 const user = computed(() => (page.props as any).auth?.user)
+const openRegister = inject('openRegister') as () => void
 
 const openLink = () => {
   window.location.href = 'https://api.whatsapp.com/send?phone=22607513333'
@@ -12,26 +13,31 @@ const openLink = () => {
 </script>
 
 <template>
-  <header class="hidden md:block bg-white shadow-sm">
+  <header class="hidden md:block bg-white shadow-sm sticky top-0 z-[60]">
     <div class="container mx-auto px-4 py-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center">
-          <img src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo" class="h-25 w-25 mr-3" />
+          <Link href="/">
+            <img src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo" class="h-20 w-20 mr-3" />
+          </Link>
         </div>
 
 
-        <div class="flex items-center space-x-4">
-          <button @click="openLink" class="text-gray-700 dark:text-gray-300">
-            <div class="i-mdi-whatsapp h-6 w-6" />
+        <div class="flex items-center space-x-6">
+          <button @click="openLink" class="text-gray-700 dark:text-gray-300 hover:text-green-500 transition">
+            <div class="i-mdi-whatsapp h-7 w-7" />
           </button>
           
-          <div v-if="!user" class="flex items-center gap-3">
-            <Link href="/auth/login" class="text-gray-700 hover:text-primary font-medium transition">
+          <div v-if="!user" class="flex items-center gap-4">
+            <Link href="/auth/login" class="text-gray-700 hover:text-primary font-bold transition">
               Connexion
             </Link>
-            <Link href="/auth/register" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition font-medium">
+            <button 
+              @click="openRegister" 
+              class="bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-primary/90 transition font-bold shadow-lg shadow-primary/20"
+            >
               S'inscrire
-            </Link>
+            </button>
           </div>
           
           <div v-else class="flex items-center gap-3">

@@ -153,20 +153,20 @@ function openEditModal(seller: Seller) {
 }
 
 function createSeller() {
-  router.post('/admin/sellers/create', formData.value, {
+  router.post('/dashboard/sellers/create', formData.value, {
     onSuccess: () => closeModal(),
   })
 }
 
 function updateSeller() {
-  router.put('/admin/sellers/edit', editData.value, {
+  router.put('/dashboard/sellers/edit', editData.value, {
     onSuccess: () => closeModal(),
   })
 }
 
 function deleteSeller(id: number) {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce vendeur ? Tous ses produits seront également supprimés.')) {
-    router.delete(`/admin/sellers/delete/${id}`)
+    router.delete(`/dashboard/sellers/delete/${id}`)
   }
 }
 

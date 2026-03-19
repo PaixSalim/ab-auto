@@ -114,7 +114,7 @@ const handleSubmit = () => {
     formData.append(`mediaTypes[${index}]`, image.type)
   })
 
-  router.put('/admin/product/edit', formData, {
+  router.put('/dashboard/product/edit', formData, {
     preserveScroll: true,
     onSuccess: () => {
       emit('success', form.value.name)

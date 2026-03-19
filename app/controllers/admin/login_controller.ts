@@ -8,13 +8,8 @@ import { DateTime } from 'luxon'
 export default class LoginController {
   static validator = vine.compile(
     vine.object({
-      email: vine
-        .string()
-        .email()
-        .unique(async (db, value) => {
-          return await db.from('users').where('email', value).first()
-        }),
-      password: vine.string().minLength(10),
+      uid: vine.string(),
+      password: vine.string(),
     })
   )
 
@@ -37,9 +32,17 @@ export default class LoginController {
       request.method(),
       request.ip()
     )
-    const { email, password } = await request.validateUsing(LoginController.validator)
+    const data = await request.validateUsing(LoginController.validator)
 
-    const user = await User.verifyCredentials(email, password)
+    const user = await User.verifyCredentials(data.uid, data.password)
+
+    // Only sellers need validation check
+    if (await user.isSeller() && !user.isValidated) {
+      session.flash('errors', { uid: 'Votre compte vendeur est en attente de validation.' })
+      return response.redirect().back()
+    }
+
+
     await auth.use('web').login(user)
 
     session.flash('notification', {
@@ -48,9 +51,12 @@ export default class LoginController {
     })
 
     // Rediriger selon le rôle
-    if (user.role === 'admin') {
-      return response.redirect().toRoute('admin.index')
-    } else if (user.role === 'seller') {
+    const roles = await user.related('roles').query()
+    const roleNames = roles.map((r: any) => r.slug)
+
+    if (roleNames.includes('admin') || roleNames.includes('superadmin')) {
+      return response.redirect('/dashboard')
+    } else if (roleNames.includes('seller')) {
       return response.redirect('/seller')
     } else {
       return response.redirect('/')

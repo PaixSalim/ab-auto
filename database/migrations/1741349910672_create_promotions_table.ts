@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('product_id').references('id').inTable('products').onDelete('CASCADE')
+      table.integer('product_id').unsigned().references('id').inTable('products').onDelete('CASCADE')
       table.decimal('discount_percent', 5, 2).notNullable()
       table.string('promo_label', 255).nullable()
       table.string('url', 255).notNullable()

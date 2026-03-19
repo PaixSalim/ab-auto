@@ -24,7 +24,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-purple-600 to-purple-800",
     iconBg: "bg-purple-500",
     textColor: "text-purple-200",
-    route: "/admin/products"
+    route: "/dashboard/products"
   },
   {
     label: "Commandes",
@@ -33,7 +33,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-yellow-600 to-yellow-800",
     iconBg: "bg-yellow-500",
     textColor: "text-yellow-200",
-    route: "/admin/orders"
+    route: "/dashboard/orders"
   },
   {
     label: "Promotions",
@@ -42,7 +42,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-green-600 to-green-800",
     iconBg: "bg-green-500",
     textColor: "text-green-200",
-    route: "/admin/dashboard"
+    route: "/dashboard/dashboard"
   },
    {
     label: "Vendeurs",
@@ -51,7 +51,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-blue-600 to-blue-800",
     iconBg: "bg-blue-500",
     textColor: "text-blue-200",
-    route: "/admin/sellers"
+    route: "/dashboard/sellers"
   }, 
    {
     label: "Clients",
@@ -60,7 +60,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-indigo-600 to-indigo-800",
     iconBg: "bg-indigo-500",
     textColor: "text-indigo-200",
-    route: "/admin/customers"
+    route: "/dashboard/customers"
   },
   {
     label: "Catégories",
@@ -69,7 +69,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-pink-600 to-pink-800",
     iconBg: "bg-pink-500",
     textColor: "text-pink-200",
-    route: "/admin/categories"
+    route: "/dashboard/categories"
   },
   {
     label: "Validation en attente",
@@ -78,7 +78,7 @@ const getStats = (products: number, orders: number, promotions: number, sellers:
     bgGradient: "from-orange-600 to-orange-800",
     iconBg: "bg-orange-500",
     textColor: "text-orange-200",
-    route: "/admin/validation"
+    route: "/dashboard/validation"
   }
 ]
 

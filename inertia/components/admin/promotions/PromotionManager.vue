@@ -541,7 +541,7 @@ const savePromotion = () => {
     formData.append('promoEndDate', (endDate)!.toString())
     console.log(formData)
 
-    router.put('/admin/promotions/edit', formData, {
+    router.put('/dashboard/promotions/edit', formData, {
       onSuccess: () => {
         showModal.value = false
       }
@@ -554,7 +554,7 @@ const savePromotion = () => {
     formData.append('promoStartDate', (startDate)!.toString())
     formData.append('promoEndDate', (endDate)!.toString())
     console.log(formData)
-    router.post('/admin/promotions/create', formData, {
+    router.post('/dashboard/promotions/create', formData, {
       onSuccess: () => {
         showModal.value = false
       }
@@ -572,7 +572,7 @@ const deletePromotion = (id: number) => {
 const confirmDelete = () => {
   if (deletePromotionId.value) {
     promotions.value = promotions.value.filter(p => p.id !== deletePromotionId.value)
-    router.delete(`/admin/promotions/delete/${deletePromotionId.value}`, {
+    router.delete(`/dashboard/promotions/delete/${deletePromotionId.value}`, {
       onSuccess: () => {
         showDeleteModal.value = false
       }

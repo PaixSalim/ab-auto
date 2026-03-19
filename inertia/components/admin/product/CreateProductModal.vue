@@ -126,7 +126,7 @@ const handleSubmit = () => {
     formData.append(`mediaTypes[${index}]`, image.type)
   })
 
-  router.post('/admin/product/create', formData, {
+  router.post('/dashboard/product/create', formData, {
     forceFormData: true,
     preserveScroll: true,
     onSuccess: () => {

@@ -10,9 +10,12 @@
           <Link href="/auth/login" class="text-gray-700 hover:text-primary">
             <div class="i-mdi-login h-6 w-6" />
           </Link>
-          <Link href="/auth/register" class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+          <button 
+            @click="openRegister" 
+            class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20"
+          >
             S'inscrire
-          </Link>
+          </button>
         </div>
         
         <div v-if="!isExpanded && user" class="flex items-center gap-2 flex-none">
@@ -34,10 +37,11 @@
 <script setup lang="ts">
 import SearchBar from '~/components/SearchBar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 
 const page = usePage()
 const user = computed(() => (page.props as any).auth?.user)
+const openRegister = inject('openRegister') as () => void
 
 const openLink = () => {
   window.location.href = 'https://api.whatsapp.com/send?phone=22607513333'

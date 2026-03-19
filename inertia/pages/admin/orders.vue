@@ -65,7 +65,7 @@ const handleAction = (data: { action: OrderAction; message: string; orderId: num
 }
 const action = async () => {
   router.post(
-    `/admin/order/${confirm.value.action}`,
+    `/dashboard/order/${confirm.value.action}`,
     {
       orderId: confirm.value.id,
     },

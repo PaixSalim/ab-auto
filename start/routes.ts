@@ -16,6 +16,8 @@ const ApiController = () => import('#controllers/api_controller')
 const StoreController = () => import('#controllers/store_controller')
 const LoginController = () => import('#controllers/admin/login_controller')
 const OrdersController = () => import('#controllers/admin/orders_controller')
+const UsersController = () => import('#controllers/admin/users_controller')
+const RolesController = () => import('#controllers/admin/roles_controller')
 const AdminController = () => import('#controllers/admin/admin_controller')
 const RegisterController = () => import('#controllers/register_controller')
 const SellersController = () => import('#controllers/admin/sellers_controller')
@@ -23,8 +25,10 @@ const CustomersController = () => import('#controllers/admin/customers_controlle
 const SellerCategoriesController = () => import('#controllers/seller/categories_controller')
 const SellerProductsController = () => import('#controllers/seller/products_controller')
 const CustomerController = () => import('#controllers/customer_controller')
+const DashboardController = () => import('#controllers/dashboard_controller')
 const AdminCategoriesController = () => import('#controllers/admin/categories_controller')
 const ProductValidationController = () => import('#controllers/admin/product_validation_controller')
+const PermissionsController = () => import('#controllers/admin/permissions_controller')
 const CheckDbStatusesController = () => import('#controllers/check_db_statuses_controller')
 
 router.get('/health', async ({ response }) => {
@@ -62,8 +66,7 @@ router
 
 router
   .group(() => {
-    router.get('/', [AdminController, 'index']).as('index')
-    router.get('dashboard', [AdminController, 'index']).as('dashboard')
+    router.get('/', [DashboardController, 'index']).as('index')
     router.get('products', [AdminController, 'products']).as('products')
     router.get('orders', [OrdersController, 'index']).as('orders')
 
@@ -150,16 +153,24 @@ router
       })
       .prefix('validation')
       .as('validation')
+    router.resource('users', UsersController).as('users')
+    router.resource('roles', RolesController).as('roles')
+
+    // Gestion des permissions
+    router.get('permissions', [PermissionsController, 'index']).as('permissions.index')
+    router.get('permissions/role/:id', [PermissionsController, 'getRolePermissions']).as('permissions.role')
+    router.post('permissions/sync', [PermissionsController, 'sync']).as('permissions.sync')
+
   })
-  .prefix('admin')
+  .prefix('dashboard')
   .use(middleware.auth())
   .use(middleware.admin())
-  .as('admin')
+  .as('admin_dashboard')
 
 // Routes vendeurs
 router
   .group(() => {
-    router.get('/', [SellerProductsController, 'dashboard']).as('dashboard')
+    router.get('/', [SellerProductsController, 'dashboard']).as('index')
     router.get('products', [SellerProductsController, 'index']).as('products')
     router.get('comments', [SellerProductsController, 'comments']).as('comments')
     router.get('orders', [SellerProductsController, 'orders']).as('orders')
