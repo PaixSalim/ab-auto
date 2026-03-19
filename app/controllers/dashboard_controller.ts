@@ -35,10 +35,6 @@ export default class DashboardController {
     }
 
     return inertia.render('dashboard', {
-      auth: {
-        user: user,
-        roles: roles
-      },
       stats: {
         products: productsCount,
         orders: ordersCount,

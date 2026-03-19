@@ -20,7 +20,17 @@ export const isAdmin = Bouncer.ability(async (user: User) => {
 })
 
 export const isSeller = Bouncer.ability(async (user: User) => {
-  return await user.isSeller()
+  return (await user.isSeller()) || (await user.isAdmin())
+})
+
+/**
+ * Capacité générique basée sur les permissions en base de données
+ */
+export const can = Bouncer.ability(async (user: User, permissionSlug: string) => {
+  if (await user.isAdmin()) {
+    return true
+  }
+  return await user.hasPermission(permissionSlug)
 })
 
 export const isOwner = Bouncer.ability(async (user: User, resource: { sellerId: number }) => {

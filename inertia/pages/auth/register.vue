@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import InputComponent from '~/components/auth/form/InputComponent.vue'
 import MessagePopup from '~/components/admin/product/MessagePopup.vue'
 import { PopupType } from '#utils/popup_type_utils'
@@ -83,87 +83,102 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background-primary flex items-center justify-center p-4">
-    <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
-      <div class="relative bg-background-admin rounded-[15px] p-6 sm:(p-8 mb-5) w-full shadow-lg">
-        <div class="flex justify-center mb-1 sm:mb-2">
-          <img class="h-25 rounded-2xl" src="https://auto-cdn.uvatis.com/logo.png" alt="Logo Auto-pro" />
+  <div class="min-h-screen bg-background-primary flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -ml-64 -mb-64"></div>
+
+    <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-xl animate-in fade-in zoom-in duration-700">
+      <div class="relative bg-background-admin border border-white/10 rounded-[30px] p-8 sm:p-10 w-full shadow-2xl backdrop-blur-sm">
+        <div class="flex justify-center mb-6">
+          <div class="relative">
+            <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
+            <img class="h-24 relative rounded-2xl" src="https://auto-cdn.uvatis.com/logo.png" alt="Logo Auto-pro" />
+          </div>
         </div>
 
-        <h1 class="text-2xl text-title sm:text-xl lg:text-4xl font-bold text-center leading-tight mb-3 sm:mb-4">
-          Inscription | Auto-pro
+        <h1 class="text-3xl text-white sm:text-4xl font-black text-center leading-tight mb-2 tracking-tighter">
+          Bienvenue sur <span class="text-primary italic">AB Auto</span>
         </h1>
 
-        <p class="text-description text-center text-sm sm:text-base lg:text-lg mb-6 sm:mb-8">
-          Créez votre compte pour profiter de toutes nos fonctionnalités
+        <p class="text-description text-center text-sm sm:text-base lg:text-lg mb-10 font-medium">
+          Créez votre compte en quelques secondes
         </p>
 
         <form
-          class="space-y-4"
+          class="space-y-6"
           method="POST"
           @submit.prevent="handleSubmit"
         >
-          <InputComponent
-            id="fullName"
-            type="text"
-            placeholder="Entrez le nom de votre entreprise"
-            label="Nom de l'entreprise"
-            v-model="fullName"
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <InputComponent
+              id="fullName"
+              type="text"
+              placeholder="Votre nom complet"
+              label="Nom complet"
+              v-model="fullName"
+            />
 
-          <InputComponent
-            id="email"
-            type="email"
-            placeholder="Entrez votre E-mail"
-            label="Email"
-            v-model="email"
-          />
+            <InputComponent
+              id="email"
+              type="email"
+              placeholder="votre@email.com"
+              label="Email (Optionnel)"
+              v-model="email"
+            />
+          </div>
 
-          <InputComponent
-            id="phone"
-            type="text"
-            placeholder="Entrez votre numéro de téléphone"
-            label="Téléphone"
-            v-model="phone"
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <InputComponent
+              id="phone"
+              type="text"
+              placeholder="+226 ..."
+              label="Téléphone (Obligatoire)"
+              v-model="phone"
+              required
+            />
 
-          <InputComponent
-            id="city"
-            type="text"
-            placeholder="Entrez votre ville"
-            label="Ville"
-            v-model="city"
-          />
+            <InputComponent
+              id="city"
+              type="text"
+              placeholder="Votre ville"
+              label="Ville"
+              v-model="city"
+            />
+          </div>
 
-          <InputComponent
-            id="password"
-            type="password"
-            placeholder="Entrez votre mot de passe"
-            label="Mot de passe"
-            v-model="password"
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <InputComponent
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              label="Mot de passe"
+              v-model="password"
+            />
 
-          <InputComponent
-            id="confirmPassword"
-            type="password"
-            placeholder="Confirmez votre mot de passe"
-            label="Confirmer le mot de passe"
-            v-model="confirmPassword"
-          />
+            <InputComponent
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              label="Confirmation"
+              v-model="confirmPassword"
+            />
+          </div>
 
           <button
             type="submit"
-            class="w-full text-title px-4 rounded-lg border border-primary font-semibold py-2 text-sm flex items-center justify-center gap-2 sm:(text-base py-3) lg:(py-2 text-lg) hover:(bg-primary text-white)"
+            class="w-full bg-primary text-white px-4 py-4 rounded-2xl font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(190,22,34,0.3)] hover:(shadow-[0_15px_40px_rgba(190,22,34,0.4)] -translate-y-0.5) active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3 mt-8"
+            :disabled="isLoading"
           >
-            <span v-if="isLoading" class="i-line-md:loading-loop text-title"></span>
-            {{ isLoading ? 'Chargement' : 'S\'inscrire' }}
+            <div v-if="isLoading" class="i-line-md:loading-loop w-6 h-6" />
+            <span>{{ isLoading ? 'Création en cours...' : 'S\'inscrire maintenant' }}</span>
           </button>
         </form>
 
-        <div class="mt-4 text-center">
-          <p class="text-description text-sm">
-            Vous avez déjà un compte ?
-            <a href="/auth/login" class="text-primary hover:underline font-semibold">Se connecter</a>
+        <div class="mt-8 text-center animate-in fade-in duration-1000 delay-300">
+          <p class="text-description text-sm flex items-center justify-center gap-2">
+            Déjà un compte ?
+            <a href="/auth/login" class="text-primary hover:text-white hover:underline font-black transition-all">Se connecter</a>
           </p>
         </div>
       </div>

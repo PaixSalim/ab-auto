@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import InputComponent from '~/components/auth/form/InputComponent.vue'
 import MessagePopup from '~/components/admin/product/MessagePopup.vue'
+import RegisterPopup from '~/components/auth/RegisterPopup.vue'
 import { PopupType } from '#utils/popup_type_utils'
 
 //const props = defineProps({ label: String })
@@ -12,6 +13,7 @@ const isLoading = ref(false)
 const uid = ref('')
 const password = ref('')
 const showPopup = ref(false)
+const showRegisterPopup = ref(false)
 const popupType = ref<PopupType>(PopupType.SUCCESS)
 const popupMessage = ref('')
 
@@ -62,68 +64,74 @@ function handleSubmit() {
 </style>
 
 <template>
-  <div class="min-h-screen bg-background-primary flex items-center justify-center p-4">
-    <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
-      <!-- Main card -->
-      <div class="relative bg-background-admin rounded-[15px] p-6 sm:(p-8 mb-5) w-full shadow-lg">
-        <!-- Logo -->
-        <div class="flex justify-center mb-1 sm:mb-2">
-          <img class="h-25 rounded-2xl" src="https://auto-cdn.uvatis.com/logo.png" alt="Logo QBC-PLUS " />
+  <div class="min-h-screen bg-background-primary flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -ml-64 -mb-64"></div>
+
+    <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-xl animate-in fade-in zoom-in duration-700">
+      <div class="relative bg-background-admin border border-white/10 rounded-[30px] p-8 sm:p-10 w-full shadow-2xl backdrop-blur-sm">
+        <div class="flex justify-center mb-6">
+          <div class="relative">
+            <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
+            <img class="h-24 relative rounded-2xl" src="https://auto-cdn.uvatis.com/logo.png" alt="Logo Auto-pro" />
+          </div>
         </div>
 
-        <!-- Heading -->
-        <h1
-          class="text-2xl text-title sm:text-xl lg:text-4xl font-bold text-center leading-tight mb-3 sm:mb-4"
-        >
-          Connexion | Auto-pro
+        <h1 class="text-3xl text-white sm:text-4xl font-black text-center leading-tight mb-2 tracking-tighter">
+          Bon retour sur <span class="text-primary italic">AB Auto</span>
         </h1>
 
-        <!-- Subheading -->
-        <p class="text-description text-center text-sm sm:text-base lg:text-lg mb-6 sm:mb-8">
-          Connectez vous afin de profiter de toutes les fonctionnalités de notre app
+        <p class="text-description text-center text-sm sm:text-base lg:text-lg mb-10 font-medium">
+          Connectez-vous pour continuer
         </p>
 
-
-        <!-- Form -->
         <form
-          class="space-y-4"
+          class="space-y-6"
           method="POST"
-          action=""
-          enctype="multipart/form-data"
           @submit.prevent="handleSubmit"
         >
           <InputComponent
             id="uid"
             type="text"
             placeholder="E-mail ou Téléphone"
-            label="Identifiant"
+            label="Email ou Téléphone"
             v-model="uid"
           />
 
           <InputComponent
             id="password"
             type="password"
-            placeholder="Entrer votre mot de passe"
+            placeholder="••••••••"
             label="Mot de passe"
             v-model="password"
           />
 
+          <div class="text-right">
+            <Link href="/auth/forgot-password" class="text-xs font-bold text-description hover:text-white transition-colors">Mot de passe oublié ?</Link>
+          </div>
+
           <button
             type="submit"
-            class="w-full text-title px-4 rounded-lg border border-primary font-semibold py-2 text-sm flex items-center justify-center gap-2 sm:(text-base py-3) lg:(py-2 text-lg) hover:(bg-primary text-white)"
+            class="w-full bg-primary text-white px-4 py-4 rounded-2xl font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(190,22,34,0.3)] hover:(shadow-[0_15px_40px_rgba(190,22,34,0.4)] -translate-y-0.5) active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3 mt-4"
+            :disabled="isLoading"
           >
-            <span v-if="isLoading" class="i-line-md:loading-loop text-title"></span>
-            {{ isLoading ? 'Chargement' : 'Se connecter' }}
+            <div v-if="isLoading" class="i-line-md:loading-loop w-6 h-6" />
+            <span>{{ isLoading ? 'Connexion...' : 'Se connecter' }}</span>
           </button>
         </form>
 
-        <div class="mt-4 text-center">
-          <p class="text-description text-sm">
-            Vous n'avez pas de compte ?
-            <a href="/auth/register" class="text-primary hover:underline font-semibold">S'inscrire</a>
+        <div class="mt-10 text-center animate-in fade-in duration-1000 delay-300">
+          <p class="text-description text-sm flex items-center justify-center gap-2">
+            Pas encore de compte ?
+            <button 
+              @click="showRegisterPopup = true" 
+              class="text-primary hover:text-white hover:underline font-black transition-all bg-transparent border-none p-0 cursor-pointer"
+            >
+              S'inscrire
+            </button>
           </p>
         </div>
-
       </div>
     </div>
 
@@ -132,6 +140,11 @@ function handleSubmit() {
       :type="popupType"
       :message="popupMessage"
       @close-callback="closePopup"
+    />
+
+    <RegisterPopup 
+      :show="showRegisterPopup" 
+      @close="showRegisterPopup = false" 
     />
   </div>
 </template>

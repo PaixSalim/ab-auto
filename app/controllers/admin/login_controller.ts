@@ -34,32 +34,54 @@ export default class LoginController {
     )
     const data = await request.validateUsing(LoginController.validator)
 
-    const user = await User.verifyCredentials(data.uid, data.password)
-
-    // Only sellers need validation check
-    if (await user.isSeller() && !user.isValidated) {
-      session.flash('errors', { uid: 'Votre compte vendeur est en attente de validation.' })
-      return response.redirect().back()
+    // Normalisation de l'UID (Email ou Téléphone)
+    // On retire les espaces et caractères spéciaux si c'est un numéro de téléphone
+    let uid = data.uid.trim()
+    if (!uid.includes('@')) {
+      uid = uid.replace(/[^\d+]/g, '')
     }
 
+    logger.info('Tentative de connexion: UID normalisé = %s', uid)
 
-    await auth.use('web').login(user)
+    try {
+      // Vérifier d'abord si l'utilisateur existe
+      const userFound = await User.query()
+        .where('email', uid)
+        .orWhere('phone', uid)
+        .first()
 
-    session.flash('notification', {
-      type: 'success',
-      message: `Bienvenue ${user.fullName || user.email}`
-    })
+      if (!userFound) {
+        logger.warn('Aucun utilisateur trouvé avec l\'identifiant: %s', uid)
+        session.flash('errors', { uid: 'Identifiant (Email ou Téléphone) non reconnu.' })
+        return response.redirect().back()
+      }
 
-    // Rediriger selon le rôle
-    const roles = await user.related('roles').query()
-    const roleNames = roles.map((r: any) => r.slug)
+      logger.info('Utilisateur trouvé: %s (ID: %s). Vérification du mot de passe...', userFound.fullName, userFound.id)
 
-    if (roleNames.includes('admin') || roleNames.includes('superadmin')) {
-      return response.redirect('/dashboard')
-    } else if (roleNames.includes('seller')) {
-      return response.redirect('/seller')
-    } else {
-      return response.redirect('/')
+      const user = (await User.verifyCredentials(uid, data.password)) as User
+      logger.info('Vérification réussie pour ID: %s', user.id)
+
+      await auth.use('web').login(user)
+
+      session.flash('notification', {
+        type: 'success',
+        message: `Bienvenue ${user.fullName || user.email}`,
+      })
+
+      // Rediriger selon le rôle
+      const roles = await user.related('roles').query()
+      const roleNames = roles.map((r: any) => r.slug)
+
+      if (roleNames.includes('admin') || roleNames.includes('superadmin')) {
+        return response.redirect('/dashboard')
+      } else if (roleNames.includes('seller')) {
+        return response.redirect('/seller')
+      } else {
+        return response.redirect('/')
+      }
+    } catch (error) {
+      session.flash('errors', { uid: 'Email/Téléphone ou mot de passe incorrect.' })
+      return response.redirect().back()
     }
   }
 
