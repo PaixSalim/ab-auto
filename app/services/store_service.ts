@@ -238,6 +238,7 @@ export class StoreService {
       .select(
         'products.id',
         'products.name',
+        'products.slug',
         'products.price as original_price',
         'promotions.discount_percent',
         'promotions.url',
@@ -252,8 +253,8 @@ export class StoreService {
     return promotedProducts.map((promotion) => ({
       id: promotion.id,
       name: promotion.$extras.name,
-      url: promotion.url,
-      promoLabel: promotion.promoLabel,
+      slug: promotion.$extras.slug,
+      url: promotion.url || null, // URL de la promotion (peut être null si pas d'image)
       originalPrice: promotion.$extras.original_price,
       discountPercent: promotion.discountPercent,
       promoPrice:

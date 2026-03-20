@@ -2,13 +2,44 @@
   <div class="min-h-screen">
     <div class="container mx-auto py-6">
       <!-- Fil d'Ariane -->
-      <div class="text-sm px-4 text-text-secondary mb-4">
-        <span @click="router.get('/')" class="hover:text-primary cursor-pointer">Accueil</span> &gt;
-        <span class="">{{ product.category.name }}</span> &gt;
-        <span @click="router.get('/catalogue')" class="hover:text-primary cursor-pointer"
-          >Catalogue &gt;
-        </span>
-      </div>
+      <nav class="flex items-center space-x-2 text-sm px-4 py-3 bg-white rounded-lg shadow-sm mb-6">
+        <router-link 
+          to="/" 
+         @click="router.get('/')"  class="text-gray-500 hover:text-primary transition-colors duration-200 flex items-center"
+        >
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 8.414V17a1 1 0 102 0V8.414l.293.293a1 1 0 00-1.414-1.414l-7 7z"/>
+          </svg>
+          
+          Accueil
+        </router-link>
+        
+        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+        
+        <span class="text-gray-600 font-medium" @click="router.get('/catalogue')">{{ product.category?.name || 'Catégorie' }}</span>
+        
+        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+        
+        <router-link 
+          to="/catalogue" 
+          class="text-gray-500 hover:text-primary transition-colors duration-200 flex items-center"
+        >
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+          </svg>
+          Catalogue
+        </router-link>
+        
+        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+        
+        <span class="text-primary font-semibold">{{ product.name }}</span>
+      </nav>
 
       <div class="bg-gray-100 rounded-lg shadow-sm overflow-hidden p-4 md:p-6">
         <div class="flex flex-col lg:flex-row gap-8">
@@ -25,7 +56,7 @@
                   ></iframe>
                 </div>
                 <!-- Image -->
-                <div v-else-if="selectedMedia" @click="showLightbox(selectedMediaIndex)" class="relative group">
+                <div v-else-if="selectedMedia" @click="showLightboxHandler(selectedMediaIndex)" class="relative group">
                   <img
                     :src="selectedMedia.url"
                     :alt="`${product.name} - Vue`"
@@ -286,57 +317,118 @@
 
           <div v-if="activeTab === 'seller'" class="bg-white rounded-lg shadow-sm p-6">
             <h2 class="text-xl font-semibold text-text-title mb-4">Informations du vendeur</h2>
-            <div v-if="product.seller" class="space-y-4">
+            <div v-if="product.seller" class="space-y-6">
+              <!-- En-tête vendeur -->
               <div class="flex items-start gap-4">
-                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
                   {{ product.seller.fullName?.charAt(0).toUpperCase() || 'V' }}
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-medium text-text-title text-lg">{{ product.seller.fullName || 'Vendeur' }}</h3>
-                  <p class="text-text-secondary text-sm">Vendeur vérifié</p>
+                  <h3 class="font-semibold text-text-title text-xl">{{ product.seller.fullName || 'Vendeur' }}</h3>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <div class="i-mdi-check-circle w-3 h-3 mr-1"></div>
+                      Vendeur vérifié
+                    </span>
+                  </div>
+                  <p class="text-text-secondary text-sm mt-2">Vendeur professionnel</p>
                 </div>
               </div>
               
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div class="i-mdi-phone w-5 h-5 text-primary"></div>
+              <!-- Coordonnées complètes -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div class="i-mdi-phone w-6 h-6 text-primary"></div>
                   <div>
-                    <p class="text-sm text-text-secondary">Téléphone</p>
-                    <p class="font-medium">{{ product.seller.phone || 'Non disponible' }}</p>
+                    <p class="text-sm font-medium text-text-secondary">Téléphone</p>
+                    <p class="font-semibold text-text-title">{{ product.seller.phone || 'Non disponible' }}</p>
                   </div>
                 </div>
                 
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div class="i-mdi-email w-5 h-5 text-primary"></div>
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div class="i-mdi-email w-6 h-6 text-primary"></div>
                   <div>
-                    <p class="text-sm text-text-secondary">Email</p>
-                    <p class="font-medium text-sm">{{ product.seller.email }}</p>
+                    <p class="text-sm font-medium text-text-secondary">Email</p>
+                    <p class="font-semibold text-text-title text-sm">{{ product.seller.email }}</p>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div class="i-mdi-map-marker w-5 h-5 text-primary"></div>
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div class="i-mdi-map-marker w-6 h-6 text-primary"></div>
                   <div>
-                    <p class="text-sm text-text-secondary">Ville</p>
-                    <p class="font-medium">{{ product.seller.city || 'Non spécifiée' }}</p>
+                    <p class="text-sm font-medium text-text-secondary">Ville</p>
+                    <p class="font-semibold text-text-title">{{ product.seller.city || 'Non spécifiée' }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div class="i-mdi-store w-6 h-6 text-primary"></div>
+                  <div>
+                    <p class="text-sm font-medium text-text-secondary">Type de compte</p>
+                    <p class="font-semibold text-text-title">Vendeur professionnel</p>
                   </div>
                 </div>
               </div>
-              
-              <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div class="flex items-center gap-2 mb-2">
-                  <div class="i-mdi-shield-check w-5 h-5 text-blue-600"></div>
-                  <h4 class="font-medium text-blue-900">Vendeur de confiance</h4>
+
+              <!-- Statistiques du vendeur -->
+              <!-- <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="i-mdi-chart-line w-5 h-5 text-blue-600"></div>
+                  <h4 class="font-semibold text-blue-900">Performance du vendeur</h4>
                 </div>
-                <p class="text-sm text-blue-800">
-                  Ce vendeur a été vérifié par notre équipe. Vous pouvez contacter directement le vendeur pour plus d'informations sur ce produit.
-                </p>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p class="text-2xl font-bold text-blue-900">156</p>
+                    <p class="text-sm text-blue-700">Produits vendus</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-blue-900">4.8</p>
+                    <p class="text-sm text-blue-700">Note moyenne</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-blue-900">2h</p>
+                    <p class="text-sm text-blue-700">Temps de réponse</p>
+                  </div>
+                </div>
+              </div> -->
+              
+              <!-- Actions de contact -->
+              <div class="flex flex-col sm:flex-row gap-3">
+                <button
+                  @click="callCommercial"
+                  class="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors"
+                >
+                  <div class="i-line-md-phone-call-loop w-5 h-5" />
+                  Contacter par WhatsApp
+                </button>
+                <button
+                  @click="sendMessage"
+                  class="flex-1 flex items-center justify-center gap-2 py-3 px-4 border border-primary text-primary hover:bg-primary-light rounded-lg transition-colors"
+                >
+                  <div class="i-mdi-message w-5 h-5" />
+                  Envoyer un message
+                </button>
+              </div>
+
+              <!-- Badge de confiance -->
+              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <div class="i-mdi-shield-check w-8 h-8 text-green-600"></div>
+                  <div>
+                    <h4 class="font-semibold text-green-900 mb-1">Vendeur de confiance</h4>
+                    <p class="text-sm text-green-800">
+                      Ce vendeur a été vérifié par notre équipe et bénéficie d'un excellent taux de satisfaction. 
+                      Transactions sécurisées et garantie satisfait ou remboursé.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             
             <div v-else class="text-center py-8">
-              <div class="i-mdi-store w-12 h-12 text-gray-400 mx-auto mb-3"></div>
-              <p class="text-text-secondary">Les informations du vendeur ne sont pas disponibles</p>
+              <div class="i-mdi-store w-16 h-16 text-gray-400 mx-auto mb-4"></div>
+              <h3 class="text-lg font-medium text-text-secondary mb-2">Vendeur non disponible</h3>
+              <p class="text-text-body">Les informations du vendeur ne sont pas temporairement disponibles.</p>
             </div>
           </div>
         </div>
@@ -348,6 +440,12 @@
         :quantity="quantity"
         :selected-condition="selectedCondition"
         @order-submitted="handleOrderSubmitted"
+      />
+
+      <AuthRequiredModal
+        v-model="showAuthModal"
+        :action="authAction"
+        @continue-as-guest="handleGuestAction"
       />
 
       <OrderSuccessToast
@@ -375,8 +473,10 @@ import SimilarProducts from '~/components/product/sections/SimilarProducts.vue'
 import { router } from '@inertiajs/vue3'
 import OrderModal from '~/components/product/OrderModal.vue'
 import OrderSuccessToast from '~/components/order/OrderSuccessToast.vue'
+import AuthRequiredModal from '~/components/auth/AuthRequiredModal.vue'
 import { GetProductDto, MediaDto, MediaType } from '#dto/products_interface'
 import { getRealPrice } from '~/composables/use_price'
+import { useAuth } from '~/composables/useAuth'
 import { formatPrice } from '~/composables/format_price'
 import { getYouTubeEmbedUrl } from '~/composables/get_youtube_embed'
 import VueEasyLightbox from 'vue-easy-lightbox';
@@ -387,7 +487,13 @@ const props = defineProps<{
 const selectedMedia = ref<MediaDto | null>(props.product.medias?.[0] || null)
 const selectedCondition = ref('new')
 const quantity = ref(1)
+const { user } = useAuth()
 const activeTab = ref('description')
+const showOrderModal = ref(false)
+const showOrderConfirmation = ref(false)
+const showCopyLink = ref(false)
+const showAuthModal = ref(false)
+const authAction = ref<'order' | 'comment'>('order')
 
 const tabs = [
   { id: 'description', name: 'Description' },
@@ -395,9 +501,12 @@ const tabs = [
   { id: 'seller', name: 'Vendeur' },
 ]
 
-const showOrderModal = ref(false)
-const showOrderConfirmation = ref(false)
-const showCopyLink = ref(false)
+const handleGuestAction = () => {
+  if (authAction.value === 'order') {
+    showOrderModal.value = true
+  }
+  // Pour les commentaires, on pourrait permettre de commenter en tant qu'invité
+}
 
 const handleOrderSubmitted = () => {
   showOrderConfirmation.value = true
@@ -408,7 +517,12 @@ const handleOrderSubmitted = () => {
 }
 
 const addToCart = () => {
-  showOrderModal.value = true
+  if (!user.value) {
+    showAuthModal.value = true
+    authAction.value = 'order'
+  } else {
+    showOrderModal.value = true
+  }
 }
 
 const callCommercial = () => {
@@ -418,6 +532,15 @@ const callCommercial = () => {
   const phone = sellerPhone || defaultPhone
   
   window.location.href = `https://api.whatsapp.com/send?phone=${phone}`
+}
+
+const sendMessage = () => {
+  // Ouvrir le client mail par défaut avec le vendeur pré-rempli
+  const sellerEmail = props.product.seller?.email
+  const subject = `Question concernant: ${props.product.name}`
+  const body = `Bonjour,\n\nJe suis intéressé(e) par votre produit "${props.product.name}".\n\nPourriez-vous me donner plus d'informations ?\n\nCordialement.`
+  
+  window.location.href = `mailto:${sellerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
 
 const sharePage = async () => {
@@ -485,27 +608,9 @@ const selectedMediaIndex = computed(() => {
 });
 
 // Afficher le lightbox
-const showLightbox = (index: number) => {
+const showLightboxHandler = (index: number) => {
   lightboxIndex.value = index >= 0 ? index : 0;
   lightboxVisible.value = true;
-};
-
-const debugClick = () => {
-  console.log('Image clicked');
-  console.log('Selected media:', selectedMedia.value);
-  if (selectedMedia.value) {
-    console.log('Media type:', selectedMedia.value.type);
-    console.log('Is video?', selectedMedia.value.type === MediaType.VIDEO);
-  }
-  console.log('Lightbox images:', lightboxImages.value);
-  console.log('Selected media index:', selectedMediaIndex.value);
-
-  // Tenter d'ouvrir le lightbox
-  if (selectedMediaIndex.value >= 0) {
-    lightboxIndex.value = selectedMediaIndex.value;
-    lightboxVisible.value = true;
-  }
-  console.log('Lightbox visible set to:', lightboxVisible.value);
 };
 </script>
 <style scoped>

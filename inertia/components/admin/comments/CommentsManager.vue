@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Gestion des Commentaires</h1>
+      <h1 class="text-2xl font-bold text-black">Gestion des Commentaires</h1>
       <div class="flex gap-2">
         <button
           @click="refreshComments"

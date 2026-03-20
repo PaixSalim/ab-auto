@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { CreatePromotionValidator, EditPromotionValidator } from '#validators/promotion_validator'
-import { assert } from '#utils/assert'
 import Promotion from '#models/promotion'
 import { inject } from '@adonisjs/core'
 import { PromotionService } from '#services/admin/promotion_service'
@@ -15,7 +14,7 @@ export default class PromotionController {
   async create(ctx: HttpContext) {
     const payload = await ctx.request.validateUsing(CreatePromotionValidator)
     const file = ctx.request.file('image')
-    assert(file, 'file is required')
+    
     await this.promotionService.create(payload, file)
     
     ctx.session.flash('notification', {
@@ -27,7 +26,9 @@ export default class PromotionController {
   }
   async edit(ctx: HttpContext) {
     const payload = await ctx.request.validateUsing(EditPromotionValidator)
-    await this.promotionService.edit(payload)
+    const file = ctx.request.file('image')
+    
+    await this.promotionService.edit(payload, file)
     
     ctx.session.flash('notification', {
       type: 'success',

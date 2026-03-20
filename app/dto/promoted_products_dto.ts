@@ -3,6 +3,7 @@ import { ProductType } from '#dto/products_interface'
 export interface GetPromotedProductsDto {
   id: number
   name: string
+  slug: string
   url: string
   category: string
   originalPrice: number

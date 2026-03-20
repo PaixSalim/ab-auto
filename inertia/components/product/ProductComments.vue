@@ -103,12 +103,19 @@
         <p class="text-sm">Votre commentaire sera visible après modération.</p>
       </div>
     </div>
+
+    <AuthRequiredModal
+      v-model="showAuthModal"
+      :action="authAction"
+      @continue-as-guest="handleGuestComment"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import AuthRequiredModal from '~/components/auth/AuthRequiredModal.vue'
 
 interface Comment {
   id: number
@@ -133,6 +140,14 @@ const formData = ref({
 
 const isSubmitting = ref(false)
 const showSuccess = ref(false)
+const showAuthModal = ref(false)
+const authAction = ref<'order' | 'comment'>('comment')
+
+const handleGuestComment = () => {
+  // Pour les commentaires en tant qu'invité, on pourrait permettre de commenter sans connexion
+  // ou afficher un formulaire simplifié
+  submitComment()
+}
 
 // Filtrer uniquement les commentaires actifs
 const activeComments = computed(() => {
@@ -140,6 +155,12 @@ const activeComments = computed(() => {
 })
 
 async function submitComment() {
+  if (!user.value) {
+    showAuthModal.value = true
+    authAction.value = 'comment'
+    return
+  }
+
   isSubmitting.value = true
 
   try {
