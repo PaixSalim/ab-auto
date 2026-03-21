@@ -110,7 +110,7 @@ const getStatusText = (status: string) => {
   <Layout>
     <div class="p-6">
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-white mb-2">Validation des produits</h1>
+        <h1 class="text-2xl font-bold text-center text- mb-2">Validation sdes produits</h1>
         <p class="text-gray-400 mb-4">
           Produits en attente de validation : {{ products.length }}
         </p>

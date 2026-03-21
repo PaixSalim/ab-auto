@@ -137,8 +137,8 @@ const getStatusText = (status: string) => {
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-3xl font-bold text-white mb-2">Validation des produits</h1>
-        <p class="text-gray-400">
+        <h1 class="text-3xl font-bold text-black text-center mb-2">Validation des produits</h1>
+        <p class="text-gray-400 text-center">
           Produits en attente de validation : {{ products.length }}
         </p>
         

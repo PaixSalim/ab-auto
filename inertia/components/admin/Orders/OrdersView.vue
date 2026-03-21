@@ -1,6 +1,6 @@
 <template>
   <section class="text-white rounded-xl p-6">
-    <h2 class="text-2xl font-semibold mb-4">Commandes</h2>
+    <h2 class="text-2xl font-semibold mb-4 text-black"> Gestion des Commandes</h2>
 
     <!-- Order Tabs -->
     <div class="mb-4">

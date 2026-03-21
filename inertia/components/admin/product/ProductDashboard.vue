@@ -148,7 +148,7 @@ const getYouTubeEmbedUrl = (url: string) => {
   <div class="text-white mx-auto px-6 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-2xl font-bold">Articles</h1>
+      <h1 class="text-2xl font-bold text-black">Gestion des Articles</h1>
       <button
         @click="openModal('create')"
         class="bg-primary hover:bg-opacity-90 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -314,7 +314,7 @@ const getYouTubeEmbedUrl = (url: string) => {
           "
         />
 
-        <ShowProduct v-if="['view'].includes(modalMode)" :product="modalModeProduct!" :src="'/'" />
+        <ShowProduct v-if="['view'].includes(modalMode)" :product="modalModeProduct!" :src="'/'" @close="closeModal" />
       </div>
     </div>
 

@@ -39,6 +39,19 @@ export default class extends BaseSeeder {
       { group: 'Commandes', name: 'Voir toutes les commandes', slug: 'view_all_orders' },
       { group: 'Commandes', name: 'Gérer toutes les commandes', slug: 'manage_all_orders' },
       { group: 'Commandes', name: 'Gérer ses propres commandes', slug: 'manage_own_orders' },
+
+      // Commentaires
+      { group: 'Commentaires', name: 'Voir les commentaires', slug: 'view_comments' },
+      { group: 'Commentaires', name: 'Gérer les commentaires', slug: 'manage_comments' },
+      { group: 'Commentaires', name: 'Approuver les commentaires', slug: 'approve_comments' },
+      { group: 'Commentaires', name: 'Supprimer les commentaires', slug: 'delete_comments' },
+
+      // Promotions
+      { group: 'Promotions', name: 'Voir les promotions', slug: 'view_promotions' },
+      { group: 'Promotions', name: 'Gérer les promotions', slug: 'manage_promotions' },
+      { group: 'Promotions', name: 'Créer des promotions', slug: 'create_promotions' },
+      { group: 'Promotions', name: 'Modifier des promotions', slug: 'edit_promotions' },
+      { group: 'Promotions', name: 'Supprimer des promotions', slug: 'delete_promotions' },
     ]
 
     await Permission.updateOrCreateMany('slug', permissions)

@@ -242,18 +242,46 @@
 
             <!-- URL de l'image -->
             <div class="mb-4">
-
-              <InputImageAdmin v-if="!currentPromotion.url"
-                label="URL de l'image de promotion"
-                placeholder="Glisser déposer"
-                v-model:images="images"
-                @select="(p) => addImage(p)"
-                @remove="(p) => removeImage(p)"
-                @drop="(p) => addImage(p)"
-                :is-required="false"
-              />
-              <div v-if="currentPromotion.url" class="mt-2">
-                <img :src="currentPromotion.url" alt="Aperçu de l'image" class="h-32 object-contain rounded-md" />
+              <label class="block text-sm text-gray-300 font-bold mb-1">Image de la promotion (optionnelle)</label>
+              
+              <!-- Input file standard -->
+              <div v-if="!currentPromotion.url && !hasImage">
+                <input
+                  type="file"
+                  accept="image/*"
+                  @change="handleFileChange"
+                  class="w-full bg-background-secondary text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  Formats acceptés: JPG, PNG, GIF (max 2MB)
+                </p>
+              </div>
+              
+              <!-- Afficher l'image existante ou la nouvelle image -->
+              <div v-if="currentPromotion.url || hasImage" class="mt-2">
+                <div class="relative inline-block">
+                  <img 
+                    :src="hasImage && images.value[0] ? images.value[0].preview : currentPromotion.url" 
+                    alt="Aperçu de l'image" 
+                    class="h-32 object-contain rounded-md border border-gray-600" 
+                  />
+                  <button
+                    type="button"
+                    @click="removeCurrentImage"
+                    class="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                    title="Supprimer l'image"
+                  >
+                    <div class="i-mdi-close w-4 h-4"></div>
+                  </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">
+                  {{ isEditing ? 'Vous pouvez remplacer cette image en en ajoutant une nouvelle' : 'Image actuelle de la promotion' }}
+                </p>
+              </div>
+              
+              <!-- Message si aucune image -->
+              <div v-if="!currentPromotion.url && !hasImage" class="text-xs text-gray-500 mt-1">
+                Une image par défaut sera utilisée si aucune image n'est fournie
               </div>
             </div>
 
@@ -342,7 +370,6 @@ import { ref, computed, onMounted } from 'vue'
 import { DateTime } from 'luxon'
 import { GetProductDto } from '#dto/products_interface'
 import InputLabelAdmin from '~/components/admin/form/InputLabelAdmin.vue'
-import InputImageAdmin from '~/components/admin/form/InputImageAdmin.vue'
 import { router } from '@inertiajs/vue3'
 import { AdminGetPromotionDto } from '#dto/promoted_products_dto'
 
@@ -382,30 +409,34 @@ const filters = ref({
   status: 'all'
 })
 
-const addImage = (files: File[]): void => {
-  files.forEach((image) => {
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
     const reader = new FileReader()
-
+    
     reader.onload = (e) => {
       if (e.target?.result) {
-        images.value.push({
-          file: image,
+        images.value = [{
+          file: file,
           type: 'image',
           preview: e.target.result as string,
-        })
+        }]
       }
     }
-
-    reader.readAsDataURL(image)
-  })
+    
+    reader.readAsDataURL(file)
+  }
 }
 
-
-const removeImage = (index: number): void => {
-  images.value.splice(index, 1)
+const removeCurrentImage = (): void => {
+  currentPromotion.value.url = ''
+  images.value = []
 }
 
 // Computed
+const hasImage = computed(() => images.value.length > 0)
+
 const filteredPromotions = computed(() => {
   let result = [...promotions.value]
 
@@ -497,6 +528,9 @@ const openCreateModal = () => {
     promoEndDate: '',
   }
 
+  // Réinitialiser les images
+  images.value = []
+
   // Initialiser les dates avec la date actuelle et la date dans 30 jours
   const now = DateTime.now()
   const thirtyDaysLater = now.plus({ days: 30 })
@@ -509,11 +543,20 @@ const openCreateModal = () => {
 
 const editPromotion = (promotion: AdminGetPromotionDto) => {
   isEditing.value = true
-  currentPromotion.value = { productId: promotion.product.id, url: promotion.url, discountPercent: promotion.discountPercent, promoLabel: promotion.promoLabel, promoStartDate: promotion.promoStartDate, promoEndDate: promotion.promoEndDate }
+  currentPromotion.value = { 
+    productId: promotion.product.id, 
+    url: promotion.url, 
+    discountPercent: promotion.discountPercent, 
+    promoLabel: promotion.promoLabel, 
+    promoStartDate: promotion.promoStartDate, 
+    promoEndDate: promotion.promoEndDate 
+  }
 
   startDateInput.value = DateTime.fromISO(promotion.promoStartDate).toFormat("yyyy-MM-dd'T'HH:mm")
   endDateInput.value = DateTime.fromISO(promotion.promoEndDate).toFormat("yyyy-MM-dd'T'HH:mm")
 
+  // Réinitialiser les images pour l'édition
+  images.value = []
 
   showModal.value = true
 }
@@ -528,8 +571,6 @@ const savePromotion = () => {
   const startDate = DateTime.fromFormat(startDateInput.value, "yyyy-MM-dd'T'HH:mm").toISO()
   const endDate = DateTime.fromFormat(endDateInput.value, "yyyy-MM-dd'T'HH:mm").toISO()
 
-
-
   if (isEditing.value) {
     const promo = promotions.value.find(p => p.product.id === currentPromotion.value.productId)
 
@@ -539,29 +580,91 @@ const savePromotion = () => {
     formData.append('discountPercent', (currentPromotion.value.discountPercent).toString())
     formData.append('promoStartDate', (startDate)!.toString())
     formData.append('promoEndDate', (endDate)!.toString())
-    console.log(formData)
+    
+    // Ajouter l'image seulement si une nouvelle image est sélectionnée
+    if (images.value.length > 0) {
+      console.log('Adding image to FormData:', images.value[0].file)
+      formData.append('image', images.value[0].file)
+    } else {
+      console.log('No new image selected, keeping existing one')
+    }
+    
+    // Debug FormData contents
+    console.log('FormData contents:')
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value)
+    }
 
     router.put('/dashboard/promotions/edit', formData, {
       onSuccess: () => {
         showModal.value = false
+        // Afficher notification de succès
+        window.dispatchEvent(new CustomEvent('toast:show', {
+          detail: {
+            type: 'success',
+            title: 'Promotion modifiée',
+            message: 'La promotion a été modifiée avec succès'
+          }
+        }))
+      },
+      onError: (errors) => {
+        console.error('Erreur lors de la modification:', errors)
+        // Afficher notification d'erreur
+        window.dispatchEvent(new CustomEvent('toast:show', {
+          detail: {
+            type: 'error',
+            title: 'Erreur',
+            message: 'Une erreur est survenue lors de la modification de la promotion'
+          }
+        }))
       }
     })
   } else {
-    formData.append('image', images.value[0].file)
+    // Ajouter les champs de base
     formData.append('productId', (currentPromotion.value.productId).toString())
     formData.append('promoLabel', (currentPromotion.value.promoLabel).toString())
     formData.append('discountPercent', (currentPromotion.value.discountPercent).toString())
     formData.append('promoStartDate', (startDate)!.toString())
     formData.append('promoEndDate', (endDate)!.toString())
-    console.log(formData)
+    
+    // Ajouter l'image seulement si elle est fournie (optionnel)
+    if (images.value.length > 0) {
+      console.log('Adding image to FormData for creation:', images.value[0].file)
+      formData.append('image', images.value[0].file)
+    } else {
+      console.log('No image provided for creation, using default')
+    }
+    
+    // Debug FormData contents
+    console.log('FormData contents for creation:')
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value)
+    }
     router.post('/dashboard/promotions/create', formData, {
       onSuccess: () => {
         showModal.value = false
+        // Afficher notification de succès
+        window.dispatchEvent(new CustomEvent('toast:show', {
+          detail: {
+            type: 'success',
+            title: 'Promotion créée',
+            message: 'La promotion a été créée avec succès'
+          }
+        }))
+      },
+      onError: (errors) => {
+        console.error('Erreur lors de la création:', errors)
+        // Afficher notification d'erreur
+        window.dispatchEvent(new CustomEvent('toast:show', {
+          detail: {
+            type: 'error',
+            title: 'Erreur',
+            message: 'Une erreur est survenue lors de la création de la promotion'
+          }
+        }))
       }
     })
-
   }
-
 }
 
 const deletePromotion = (id: number) => {

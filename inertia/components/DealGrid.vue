@@ -30,9 +30,10 @@
       >
         <div class="relative aspect-square mb-4">
           <img @click="navigateToProduct(product)"
-            :src="product.url"
+            :src="getImageUrl(product)"
             :alt="product.name"
             class="w-full hover:(border border-primary rounded-lg cursor-pointer) h-full object-contain"
+            @error="handleImageError"
           />
           <span
             class="absolute top-2 left-2 bg-state-error text-white bg-primary rounded-full text-xs px-2 py-1 rounded"
@@ -94,6 +95,21 @@ const filteredProducts = computed(() => {
 
 const navigateToProduct = (product: GetPromotedProductsDto) => {
   router.get(`/catalogue/product/${product.slug}`)
+}
+
+const getImageUrl = (product: GetPromotedProductsDto) => {
+  // Si l'URL de la promotion existe, l'utiliser
+  if (product.url) {
+    return product.url
+  }
+  // Sinon, utiliser une image par défaut
+  return 'https://auto-cdn.uvatis.com/products/default-product.jpg'
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  // Fallback vers une image par défaut en cas d'erreur
+  img.src = 'https://auto-cdn.uvatis.com/products/default-product.jpg'
 }
 </script>
 

@@ -2,7 +2,7 @@
   <Layout>
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-title">Gestion des Clients</h1>
+        <h1 class="text-3xl font-bold text-black">Gestion des Clients</h1>
         <button
           @click="showCreateModal = true"
           class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 flex items-center gap-2"

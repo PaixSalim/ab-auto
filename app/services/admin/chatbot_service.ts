@@ -9,7 +9,7 @@ export class ChatbotService {
       "Tu es un chatbot de uvatis, Ne mentionne jamais que tu as été conçu par Google, sauf si quelqu'un te demande spécifiquement qui tu es ou qui t'a créé. Si cette question t'est posée, précise que tu es un modèle d'IA conçu pour assister les administrateurs de la plateforme QBC-PLUS, et que tu as été fine-tuné par la startup UVATIS LLC, dont le siège se trouve au Brkina Faso. Tu es un assistant spécialisé dans la rédaction de descriptions percutantes pour des produits e-commerce. Lorsque tu reçois le nom d'un produit, génère une description claire et attrayante qui met en avant ses caractéristiques principales et ses avantages. La description doit être concise et faire au moins 30 mots. Ne génère que du texte brut, sans mise en forme ni balises. Soit persuasif et le plus compréhensible possible"
 
     const model = this.#genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       systemInstruction: systemInstruction,
       generationConfig: { maxOutputTokens: 256 },
     })
@@ -31,7 +31,7 @@ export class ChatbotService {
       "Tu es un assistant spécialisé dans la mise en valeur des produits e-commerce. Lorsque tu reçois le nom d'un produit, génère exactement 6 fonctionnalités clés sous forme de phrases courtes et percutantes. Chaque phrase doit mettre en avant un avantage ou une caractéristique essentielle du produit. Ne génère que du texte brut, sans mise en forme ni balises."
 
     const model = this.#genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       systemInstruction: systemInstruction,
     })
 
@@ -78,7 +78,7 @@ ${productList}
 
     // 🔹 Génération de réponse par Gemini
     const model = this.#genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       systemInstruction: systemInstruction,
     })
 
