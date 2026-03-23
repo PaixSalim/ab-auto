@@ -2,7 +2,7 @@
   <div v-if="useStore.promotedProducts.length > 0" class="mx-auto px-4">
     <!-- Navigation Tabs -->
     <h2 class="text-2xl font-bold py-3">Nos promotions en cours</h2>
-    <img class="rounded-lg" src="https://auto-cdn.uvatis.com/promos/banner.jpg" alt="Promotions en cours" />
+    <!-- <img class="rounded-lg" src="https://auto-cdn.uvatis.com/promos/banner.jpg" alt="Promotions en cours" /> -->
 
     <div class="flex gap-2 my-6 overflow-x-auto pb-2 scrollbar-hide">
       <button
@@ -75,8 +75,23 @@ import { GetPromotedProductsDto } from '#dto/promoted_products_dto'
 
 const useStore = useProductStore(pinia())
 
-onMounted(() => {
-  useStore.fetchPromotedProducts()
+onMounted(async () => {
+  // Forcer le rafraîchissement des données
+  await useStore.fetchPromotedProducts()
+  
+  console.log('🔍 ALL PROMOTED PRODUCTS DATA:', JSON.stringify(useStore.promotedProducts, null, 2))
+  
+  // Log détaillé pour chaque produit
+  useStore.promotedProducts.forEach((product, index) => {
+    console.log(`Product ${index}:`, {
+      id: product.id,
+      name: product.name,
+      url: product.url,
+      category: product.category,
+      hasUrl: !!product.url,
+      urlContainsPromotions: product.url?.includes('promotions/')
+    })
+  })
 })
 
 const activeTab = ref('tout')
@@ -100,16 +115,42 @@ const navigateToProduct = (product: GetPromotedProductsDto) => {
 const getImageUrl = (product: GetPromotedProductsDto) => {
   // Si l'URL de la promotion existe, l'utiliser
   if (product.url) {
+    console.log('Product URL details:', {
+      productName: product.name,
+      url: product.url,
+      urlType: typeof product.url,
+      startsWithHttp: product.url.startsWith('http'),
+      startsWithSlash: product.url.startsWith('/'),
+      isDefault: product.url.includes('default-product.jpg'),
+      isPromotion: product.url.includes('promotions/')
+    })
+    
+    // Si c'est une image de promotion uploadée, vérifier si elle existe
+    if (product.url.includes('promotions/')) {
+      console.log('🎯 PROMOTION IMAGE DETECTED:', product.url)
+      return product.url
+    }
+    
     return product.url
   }
-  // Sinon, utiliser une image par défaut
-  return 'https://auto-cdn.uvatis.com/products/default-product.jpg'
+  
+  // Sinon, utiliser une image par défaut LOCALE
+  console.log('Using local default image for product:', product.name)
+  return '/uploads/products/default-product.jpg'
 }
 
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  // Fallback vers une image par défaut en cas d'erreur
-  img.src = 'https://auto-cdn.uvatis.com/products/default-product.jpg'
+  console.log('Image error details:', {
+    originalSrc: img.src,
+    alt: img.alt,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+    complete: img.complete
+  })
+  
+  // Fallback vers une image par défaut LOCALE en cas d'erreur
+  img.src = '/uploads/products/default-product.jpg'
 }
 </script>
 

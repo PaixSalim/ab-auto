@@ -7,6 +7,9 @@ const page = usePage()
 const user = computed(() => (page.props as any).auth?.user)
 const openRegister = inject('openRegister') as () => void
 
+// Logo URL
+const logoUrl = '/uploads/logos/logo.png'
+
 const openLink = () => {
   window.location.href = 'https://api.whatsapp.com/send?phone=22607513333'
 }
@@ -18,23 +21,24 @@ const openLink = () => {
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center">
           <Link href="/">
-            <img src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo" class="h-20 w-20 mr-3" />
+            <img :src="logoUrl" alt="Logo" class="h-20 w-20 mr-3" />
           </Link>
         </div>
 
 
         <div class="flex items-center space-x-6">
-          <button @click="openLink" class="text-gray-700 dark:text-gray-300 hover:text-green-500 transition">
+          <button @click="openLink" class="text-gray-700 dark:text-gray-300 hover:text-green-500 transition" title="Nous contacter via WhatsApp">
             <div class="i-mdi-whatsapp h-7 w-7" />
           </button>
           
           <div v-if="!user" class="flex items-center gap-4">
-            <Link href="/auth/login" class="text-gray-700 hover:text-primary font-bold transition">
+            <Link href="/auth/login" class="text-gray-700 hover:text-primary font-bold transition" title="Se connecter à votre compte">
               Connexion
             </Link>
             <button 
               @click="openRegister" 
               class="bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-primary/90 transition font-bold shadow-lg shadow-primary/20"
+              title="créer un compte"
             >
               S'inscrire
             </button>

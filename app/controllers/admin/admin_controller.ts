@@ -68,7 +68,12 @@ export default class AdminController {
       request.method(),
       request.ip()
     )
+    
+    // Récupérer les fichiers envoyés avec images[0], images[1], etc.
     const files = request.files('images')
+    console.log('🔍 Admin product create - files received:', files.length)
+    console.log('🔍 Files details:', files.map(f => ({ name: f.fileName, size: f.size, tmpPath: f.tmpPath })))
+    
     if (files.length === 0) {
       session.flash('notification', {
         type: 'error',
@@ -76,10 +81,12 @@ export default class AdminController {
       })
       return response.redirect().back()
     }
+    
     const payload = await request.validateUsing(createProductValidator)
     if (payload.features && typeof payload.features === 'string') {
       payload.features = JSON.parse(payload.features)
     }
+    
     const product = await this.productService.createProducts(payload)
     await this.productService.uploadProductFiles(files, product, EditType.CREATE)
     

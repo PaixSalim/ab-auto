@@ -291,6 +291,26 @@
                 </li>
               </ul>
             </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <div class="i-mdi-shield-check w-8 h-8 text-green-600"></div>
+                  <div>
+                    <h4 class="font-semibold text-green-900 mb-1">Conseil de sécurité</h4>
+                    <p class="text-sm text-green-800">
+                      Eviter d'envoyer des paiements anticipés
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Rencontrez le vendeur dans un lieu public sécurisé
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Inspectez ce que vous allez acheter pour vous assurer que c'est ce dont vous avez besoin avant de finaliser l'achat
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Vérifiez tous les documents et ne payez que si vous êtes satisfait
+                    </p>
+                  </div>
+                </div>
+              </div>
           </div>
 
           <div v-if="activeTab === 'shipping'" class="bg-white rounded-lg shadow-sm p-6">
@@ -312,7 +332,28 @@
                   <p class="text-text-secondary text-sm">Gratuit</p>
                 </div>
               </div>
+
             </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <div class="i-mdi-shield-check w-8 h-8 text-green-600"></div>
+                  <div>
+                    <h4 class="font-semibold text-green-900 mb-1">Conseil de sécurité</h4>
+                    <p class="text-sm text-green-800">
+                      Eviter d'envoyer des paiements anticipés
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Rencontrez le vendeur dans un lieu public sécurisé
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Inspectez ce que vous allez acheter pour vous assurer que c'est ce dont vous avez besoin avant de finaliser l'achat
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Vérifiez tous les documents et ne payez que si vous êtes satisfait
+                    </p>
+                  </div>
+                </div>
+              </div>
           </div>
 
           <div v-if="activeTab === 'seller'" class="bg-white rounded-lg shadow-sm p-6">
@@ -415,10 +456,18 @@
                 <div class="flex items-center gap-3">
                   <div class="i-mdi-shield-check w-8 h-8 text-green-600"></div>
                   <div>
-                    <h4 class="font-semibold text-green-900 mb-1">Vendeur de confiance</h4>
+                    <h4 class="font-semibold text-green-900 mb-1">Conseil de sécurité</h4>
                     <p class="text-sm text-green-800">
-                      Ce vendeur a été vérifié par notre équipe et bénéficie d'un excellent taux de satisfaction. 
-                      Transactions sécurisées et garantie satisfait ou remboursé.
+                      Eviter d'envoyer des paiements anticipés
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Rencontrez le vendeur dans un lieu public sécurisé
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Inspectez ce que vous allez acheter pour vous assurer que c'est ce dont vous avez besoin avant de finaliser l'achat
+                    </p>
+                    <p class="text-sm text-green-800">
+                      Vérifiez tous les documents et ne payez que si vous êtes satisfait
                     </p>
                   </div>
                 </div>

@@ -20,7 +20,7 @@
                 Nom
               </th>
               <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                URL
+                Image
               </th>
               <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Sous-catégories
@@ -38,7 +38,17 @@
                   {{ category.name }}
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  {{ category.url }}
+                  <div class="flex items-center gap-3">
+                    <img 
+                      :src="getCategoryImageUrl(category)" 
+                      :alt="category.name"
+                      class="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                      @error="handleImageError"
+                    />
+                    <!-- <div class="text-xs text-gray-500 max-w-xs truncate">
+                      {{ category.url }}
+                    </div> -->
+                  </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                   <span v-if="category.subCategories && category.subCategories.length > 0" class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
@@ -82,7 +92,17 @@
                   </div>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 text-sm text-gray-600">
-                  {{ subCategory.url }}
+                  <div class="flex items-center gap-3">
+                    <img 
+                      :src="getCategoryImageUrl(subCategory)" 
+                      :alt="subCategory.name"
+                      class="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                      @error="handleImageError"
+                    />
+                    <div class="text-xs text-gray-500 max-w-xs truncate">
+                      {{ subCategory.url }}
+                    </div>
+                  </div>
                 </td>
                 <td class="px-5 py-4 border-b border-gray-200 text-sm">
                   <span class="text-gray-400">-</span>
@@ -136,13 +156,65 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">URL (optionnel)</label>
+              <label class="block text-sm font-medium mb-2">Image de la catégorie</label>
+              <div class="space-y-3">
+                <div v-if="formData.url && !formData.url.startsWith('http')" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <img 
+                    :src="formData.url" 
+                    :alt="formData.name"
+                    class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                    @error="handleImageError"
+                  />
+                  <div class="text-sm text-gray-600">
+                    <p>Image actuelle</p>
+                    <p class="text-xs text-gray-500 truncate max-w-xs">{{ formData.url }}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleFileChange"
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">
+                    Formats acceptés: JPG, PNG, GIF. Max 5MB.
+                  </p>
+                </div>
+                
+                <div v-if="selectedFile" class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                  <img 
+                    :src="previewUrl" 
+                    :alt="selectedFile.name"
+                    class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                  />
+                  <div class="text-sm text-blue-600">
+                    <p>Nouvelle image sélectionnée</p>
+                    <p class="text-xs">{{ selectedFile.name }}</p>
+                    <button 
+                      type="button"
+                      @click="removeSelectedFile"
+                      class="text-xs text-red-600 hover:text-red-800 mt-1"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">URL externe (optionnel)</label>
               <input
                 v-model="formData.url"
                 type="text"
-                placeholder="Auto-généré si vide"
+                placeholder="Laisser vide pour utiliser l'image uploadée"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <p class="text-xs text-gray-500 mt-1">
+                Si vous remplissez ce champ, l'image uploadée sera ignorée.
+              </p>
             </div>
 
             <div>
@@ -199,6 +271,8 @@ const props = defineProps<{
 
 const showCreateModal = ref(false)
 const editingCategory = ref<Category | null>(null)
+const selectedFile = ref<File | null>(null)
+const previewUrl = ref<string>('')
 const formData = ref({
   name: '',
   url: '',
@@ -208,6 +282,8 @@ const formData = ref({
 const openCreateModal = () => {
   editingCategory.value = null
   formData.value = { name: '', url: '', parentId: '' }
+  selectedFile.value = null
+  previewUrl.value = ''
   showCreateModal.value = true
 }
 
@@ -218,6 +294,8 @@ const editCategory = (category: Category) => {
     url: category.url,
     parentId: category.parentId?.toString() || ''
   }
+  selectedFile.value = null
+  previewUrl.value = ''
   showCreateModal.value = true
 }
 
@@ -225,6 +303,48 @@ const closeModal = () => {
   showCreateModal.value = false
   editingCategory.value = null
   formData.value = { name: '', url: '', parentId: '' }
+  selectedFile.value = null
+  previewUrl.value = ''
+}
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    // Vérifier la taille (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('L\'image ne doit pas dépasser 5MB')
+      target.value = ''
+      return
+    }
+    
+    // Vérifier le type
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner une image valide')
+      target.value = ''
+      return
+    }
+    
+    selectedFile.value = file
+    
+    // Créer une preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      previewUrl.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const removeSelectedFile = () => {
+  selectedFile.value = null
+  previewUrl.value = ''
+  // Réinitialiser l'input file
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+  if (fileInput) {
+    fileInput.value = ''
+  }
 }
 
 const submitCategory = () => {
@@ -232,7 +352,33 @@ const submitCategory = () => {
     ? `/dashboard/categories/edit/${editingCategory.value.id}`
     : '/dashboard/categories/create'
 
-  router.post(url, formData.value, {
+  // Utiliser FormData pour envoyer l'image
+  const formDataToSend = new FormData()
+  
+  // Ajouter les champs du formulaire
+  formDataToSend.append('name', formData.value.name)
+  formDataToSend.append('parentId', formData.value.parentId || '')
+  
+  // Ajouter l'URL seulement si elle est fournie et qu'il n'y a pas de nouvelle image
+  if (formData.value.url && !selectedFile.value) {
+    formDataToSend.append('url', formData.value.url)
+  }
+  
+  // Ajouter l'image si elle est sélectionnée
+  if (selectedFile.value) {
+    formDataToSend.append('image', selectedFile.value)
+    console.log('📤 Sending image file:', selectedFile.value.name, selectedFile.value.size)
+  } else {
+    console.log('📤 No image file to send')
+  }
+
+  // Debug FormData contents
+  console.log('📤 FormData contents:')
+  for (let [key, value] of formDataToSend.entries()) {
+    console.log(`- ${key}:`, value instanceof File ? `File(${value.name}, ${value.size} bytes)` : value)
+  }
+
+  router.post(url, formDataToSend, {
     onSuccess: () => {
       closeModal()
       router.reload()
@@ -247,5 +393,29 @@ const deleteCategory = (id: number) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
     router.delete(`/dashboard/categories/delete/${id}`)
   }
+}
+
+const getCategoryImageUrl = (category: Category) => {
+  // Si l'URL de la catégorie existe, l'utiliser
+  if (category.url) {
+    // Pour les fichiers locaux, s'assurer que l'URL est correcte
+    if (category.url.startsWith('/uploads/')) {
+      return category.url
+    }
+    // Pour les URLs externes, les remplacer par l'image par défaut locale
+    if (category.url.startsWith('http')) {
+      return '/uploads/categories/default-category.jpg'
+    }
+    // Sinon, considérer que c'est un chemin local
+    return category.url.startsWith('/') ? category.url : '/' + category.url
+  }
+  // Sinon, utiliser une image par défaut locale
+  return '/uploads/categories/default-category.jpg'
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  // Fallback vers l'image par défaut locale en cas d'erreur
+  img.src = '/uploads/categories/default-category.jpg'
 }
 </script>

@@ -50,15 +50,15 @@ const autoplay: boolean = true
     <main class="container mx-auto px-4 py-6">
       <BannerSlider :banners="banners" :interval="interval" :autoplay="autoplay"/>
 
-      <ProductCategories />
+      <!-- <ProductCategories /> -->
 
-      <PopularBrands :partners="partners"/>
+      <!-- <PopularBrands :partners="partners"/> -->
 
       <DealGrid/>
 
       <AllProductsGrid :products="products" :categories="categories" />
 
-      <SupportAssistant />
+      <!-- <SupportAssistant /> -->
     </main>
   </div>
 </template>

@@ -19,7 +19,7 @@ const popupMessage = ref('')
 const closePopup = () => {
   showPopup.value = false
 }
-
+const logoUrl = '/uploads/logos/logo.png'
 function handleSubmit() {
   if (fullName.value.length < 3) {
     showPopup.value = true
@@ -87,7 +87,7 @@ function handleSubmit() {
     <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
       <div class="relative bg-background-admin rounded-[15px] p-6 sm:(p-8 mb-5) w-full shadow-lg">
         <div class="flex justify-center mb-1 sm:mb-2">
-          <img class="h-25 rounded-2xl" src="https://auto-cdn.uvatis.com/logo.png" alt="Logo Auto-pro" />
+          <img class="h-25 rounded-2xl" :src="logoUrl" alt="Logo Auto-pro" />
         </div>
 
         <h1 class="text-2xl text-title sm:text-xl lg:text-4xl font-bold text-center leading-tight mb-3 sm:mb-4">

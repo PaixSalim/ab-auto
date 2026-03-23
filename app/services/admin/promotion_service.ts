@@ -2,32 +2,56 @@ import { CreatePromotionDto, EditPromotionDto } from '#dto/promoted_products_dto
 import { generateSlug } from '#utils/slug_utils'
 import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
+import env from '#start/env'
 import Promotion from '#models/promotion'
 import { DateTime } from 'luxon'
 
 export class PromotionService {
   async create(payload: CreatePromotionDto, file?: any) {
-    let imageUrl = 'https://auto-cdn.uvatis.com/default-promotion.jpg'
+    let imageUrl = '/uploads/products/default-product.jpg' // Image par défaut LOCALE
     
-    console.log('Creating promotion with payload:', payload)
-    console.log('File received:', file)
+    console.log('🚀 CREATE PROMOTION - START')
+    console.log('Payload:', payload)
+    console.log('File object:', file)
+    console.log('File exists?', !!file)
+    console.log('File has tmpPath?', file?.tmpPath)
     
     if (file && file.tmpPath) {
-      console.log('Processing file upload...')
-      const fileName: string = `${generateSlug(payload.promoLabel)}-${cuid()}.${file.extname}`
-      console.log('Generated filename:', fileName)
+      console.log('📁 File upload detected')
+      const fileName: string = `promotions/${generateSlug(payload.promoLabel)}-${cuid()}.${file.extname}`
+      console.log('📝 Generated filename:', fileName)
       
       try {
-        await file.moveToDisk(fileName)
-        imageUrl = await drive.use().getUrl(fileName)
-        console.log('Image uploaded successfully:', imageUrl)
+        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        console.log('💾 Using disk:', disk)
+        
+        await file.moveToDisk(fileName, disk)
+        console.log('✅ File moved to disk')
+        
+        let uploadedUrl: string
+        
+        if (disk === 'local') {
+          // Pour le disque local, construire l'URL manuellement
+          uploadedUrl = '/uploads/' + fileName
+          console.log('� Local URL constructed manually:', uploadedUrl)
+        } else {
+          // Pour R2, utiliser la méthode getUrl
+          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          console.log('� Drive returned URL:', uploadedUrl)
+        }
+        
+        imageUrl = uploadedUrl
+        console.log('🎯 FINAL IMAGE URL:', imageUrl)
+        
       } catch (error) {
-        console.error('Erreur lors de l\'enregistrement du fichier :', error)
-        // Continue avec l'image par défaut en cas d'erreur
+        console.error('❌ UPLOAD ERROR:', error)
+        console.log('⚠️ Will use default image')
       }
     } else {
-      console.log('No file provided or invalid file')
+      console.log('⚠️ NO FILE - Using default image')
     }
+
+    console.log('� Saving to database with URL:', imageUrl)
 
     const promotion = await Promotion.create({
       productId: payload.productId,
@@ -35,11 +59,13 @@ export class PromotionService {
       discountPercent: Number(payload.discountPercent),
       promoStartDate: DateTime.fromISO(payload.promoStartDate),
       promoEndDate: DateTime.fromISO(payload.promoEndDate),
-      url: imageUrl, // L'URL de l'image est stockée dans la BD
+      url: imageUrl,
     })
     
-    console.log('Promotion created with ID:', promotion.id)
-    console.log('Promotion créée avec URL:', imageUrl)
+    console.log('✅ Promotion created - ID:', promotion.id)
+    console.log('✅ Final URL in DB:', imageUrl)
+    
+    return promotion
   }
 
   async edit(payload: EditPromotionDto, file?: any) {
@@ -54,13 +80,28 @@ export class PromotionService {
     // Si une nouvelle image est fournie, la traiter
     if (file && file.tmpPath) {
       console.log('Processing new file upload for edit...')
-      const fileName: string = `${generateSlug(payload.promoLabel)}-${cuid()}.${file.extname}`
+      const fileName: string = `promotions/${generateSlug(payload.promoLabel)}-${cuid()}.${file.extname}`
       console.log('Generated filename for edit:', fileName)
       
       try {
-        await file.moveToDisk(fileName)
-        imageUrl = await drive.use().getUrl(fileName)
-        console.log('Image uploaded successfully for edit:', imageUrl)
+        // Utiliser le disque approprié selon l'environnement
+        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        await file.moveToDisk(fileName, disk)
+        
+        let uploadedUrl: string
+        
+        if (disk === 'local') {
+          // Pour le disque local, construire l'URL manuellement
+          uploadedUrl = '/uploads/' + fileName
+          console.log('Local disk URL constructed manually for edit:', uploadedUrl)
+        } else {
+          // Pour R2, utiliser la méthode getUrl
+          uploadedUrl = await drive.use(disk).getUrl(fileName)
+        }
+        
+        imageUrl = uploadedUrl
+        
+        console.log('Image uploaded successfully for edit to', disk, ':', imageUrl)
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement du fichier :', error)
         // Continue avec l'URL existante en cas d'erreur

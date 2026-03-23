@@ -72,10 +72,10 @@
               <tr v-for="promo in promos" :key="promo.id" class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
                   <img 
-                    :src="promo.url || 'https://auto-cdn.uvatis.com/default-promotion.jpg'" 
+                    :src="getPromotionImageUrl(promo)" 
                     :alt="promo.promoLabel || 'Promotion'" 
                     class="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                    @error="(event) => { const target = event.target as HTMLImageElement; target.src = 'https://auto-cdn.uvatis.com/default-promotion.jpg' }"
+                    @error="handleImageError"
                   />
                 </td>
                 <td class="px-6 py-4">
@@ -329,6 +329,26 @@ const handlePromotionUpdated = () => {
   editingPromo.value = null
   // Rafraîchir les données
   window.location.reload()
+}
+
+const getPromotionImageUrl = (promo: Promotion) => {
+  // Si l'URL de la promotion existe, l'utiliser
+  if (promo.url) {
+    // Pour les fichiers locaux, s'assurer que l'URL est correcte
+    if (promo.url.startsWith('/uploads/')) {
+      return promo.url
+    }
+    // Pour les URLs externes (R2 ou autres)
+    return promo.url
+  }
+  // Sinon, utiliser une image par défaut LOCALE
+  return '/uploads/products/default-product.jpg'
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  // Fallback vers une image par défaut LOCALE en cas d'erreur
+  img.src = '/uploads/products/default-product.jpg'
 }
 
 usePoll(1000)
