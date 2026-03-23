@@ -24,9 +24,11 @@ const SellersController = () => import('#controllers/admin/sellers_controller')
 const CustomersController = () => import('#controllers/admin/customers_controller')
 const SellerCategoriesController = () => import('#controllers/seller/categories_controller')
 const SellerProductsController = () => import('#controllers/seller/products_controller')
+const SellerBrandsController = () => import('#controllers/seller/brands_controller')
 const CustomerController = () => import('#controllers/customer_controller')
 const DashboardController = () => import('#controllers/dashboard_controller')
 const AdminCategoriesController = () => import('#controllers/admin/categories_controller')
+const AdminBrandsController = () => import('#controllers/admin/brands_controller')
 const ProductValidationController = () => import('#controllers/admin/product_validation_controller')
 const PermissionsController = () => import('#controllers/admin/permissions_controller')
 const CheckDbStatusesController = () => import('#controllers/check_db_statuses_controller')
@@ -102,6 +104,17 @@ router
       })
       .prefix('categories')
       .as('categories')
+
+    // Gestion des marques
+    router
+      .group(() => {
+        router.get('/', [AdminBrandsController, 'index']).as('index')
+        router.post('create', [AdminBrandsController, 'store']).as('create')
+        router.post('edit/:id', [AdminBrandsController, 'update']).as('edit')
+        router.delete('delete/:id', [AdminBrandsController, 'destroy']).as('delete')
+      })
+      .prefix('brands')
+      .as('brands')
 
     router
       .group(() => {
@@ -196,6 +209,17 @@ router
       })
       .prefix('categories')
       .as('categories')
+
+    // Gestion des marques
+    router
+      .group(() => {
+        router.get('/', [SellerBrandsController, 'index']).as('index')
+        router.post('create', [SellerBrandsController, 'create']).as('create')
+        router.put('edit', [SellerBrandsController, 'edit']).as('edit')
+        router.delete('delete/:id', [SellerBrandsController, 'delete']).as('delete')
+      })
+      .prefix('brands')
+      .as('brands')
 
     // Gestion des produits
     router

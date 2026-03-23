@@ -55,6 +55,7 @@ const navigation = computed(() => {
       ...(can('view_comments') || can('manage_comments') ? [{ label: 'Commentaires', route: '/dashboard/comments', icon: 'i-mdi-comment-multiple-outline' }] : []),
       ...(can('validate_products') ? [{ label: 'Validation Articles', route: '/dashboard/validation', icon: 'i-mdi-check-circle-outline' }] : []),
       ...(can('view_promotions') || can('manage_promotions') ? [{ label: 'Promotions', route: '/dashboard/promotions', icon: 'i-mdi-tag-outline' }] : []),
+      ...(can('view_brands') || can('manage_brands') ? [{ label: 'Marques', route: '/dashboard/brands', icon: 'i-mdi-truck-outline' }] : []),
     ]
 
     const adminItems = [

@@ -4,8 +4,8 @@ import ProductCategories from '~/components/ProductCategories.vue'
 import MobileNavbar from '~/components/MobileNavbar.vue'
 import DealGrid from '~/components/DealGrid.vue'
 import DesktopNavbar from '~/components/DesktopNavbar.vue'
-import PopularBrands from '~/components/PopularBrands.vue'
 import AllProductsGrid from '~/components/AllProductsGrid.vue'
+import Footer from '~/components/Footer.vue'
 import Notification from '~/components/Notification.vue'
 import { Head } from '@inertiajs/vue3'
 import SupportAssistant from '~/components/SupportAssistant.vue'
@@ -50,16 +50,20 @@ const autoplay: boolean = true
     <main class="container mx-auto px-4 py-6">
       <BannerSlider :banners="banners" :interval="interval" :autoplay="autoplay"/>
 
-      <!-- <ProductCategories /> -->
+      <ProductCategories />
 
       <!-- <PopularBrands :partners="partners"/> -->
 
-      <DealGrid/>
+      <div id="promotions">
+        <DealGrid/>
+      </div>
 
       <AllProductsGrid :products="products" :categories="categories" />
 
       <!-- <SupportAssistant /> -->
     </main>
+
+    <Footer />
   </div>
 </template>
 

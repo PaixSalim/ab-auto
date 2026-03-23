@@ -2,72 +2,111 @@
   <Layout>
     <div class="px-6 py-8">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-primary font-bold text-3xl">Gestion des Catégories</h3>
+        <h3 class="text-primary font-bold text-3xl">Gestion des Marques</h3>
         <button
           @click="openCreateModal"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center gap-2"
         >
           <span class="i-mdi:plus text-xl"></span>
-          Ajouter une catégorie
+          Ajouter une marque
         </button>
       </div>
 
-      <PaginatedList
-        :items="allCategories"
-        :headers="categoryHeaders"
-        :items-per-page="10"
-        item-name="catégories"
-        empty-message="Aucune catégorie trouvée."
-      >
-        <template #cell-name="{ item }">
-          <div class="font-bold text-white">{{ item.name }}</div>
-        </template>
-        <template #cell-image="{ item }">
-          <div class="flex items-center gap-3">
-            <img 
-              :src="getCategoryImageUrl(item)" 
-              :alt="item.name"
-              class="w-12 h-12 rounded-lg object-cover border border-gray-200"
-              @error="handleImageError"
-            />
-          </div>
-        </template>
-        <template #cell-subCategories="{ item }">
-          <span v-if="item.subCategories && item.subCategories.length > 0" class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-            {{ item.subCategories.length }} sous-catégorie(s)
-          </span>
-          <span v-else class="text-gray-400 text-xs italic">Aucune</span>
-        </template>
-        <template #cell-actions="{ item }">
-          <div class="flex items-center gap-2">
-            <button
-              @click="editCategory(item)"
-              class="text-blue-400 hover:text-blue-300 flex items-center gap-1"
-              title="Modifier"
-            >
-              <span class="i-mdi:pencil text-lg"></span>
-              Modifier
-            </button>
-            <button
-              @click="deleteCategory(item.id)"
-              class="text-red-400 hover:text-red-300 flex items-center gap-1"
-              title="Supprimer"
-            >
-              <span class="i-mdi:delete text-lg"></span>
-              Supprimer
-            </button>
-          </div>
-        </template>
-      </PaginatedList>
+      <!-- Messages Flash -->
+      <div v-if="page.props.flash?.success" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+        {{ page.props.flash.success }}
+      </div>
+      <div v-if="page.props.flash?.errors?.general" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        {{ page.props.flash.errors.general }}
+      </div>
 
-      <!-- Modal Créer/Modifier Catégorie -->
+      <div class="bg-white shadow-md rounded my-6">
+        <table class="min-w-full leading-normal">
+          <thead>
+            <tr>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Nom
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Image
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Produits associés
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="brand in brands" :key="brand.id" class="hover:bg-gray-50">
+              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-bold text-gray-800">
+                {{ brand.name }}
+              </td>
+              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <div class="flex items-center gap-3">
+                  <img 
+                    :src="getBrandImageUrl(brand)" 
+                    :alt="brand.name"
+                    class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                    @error="handleImageError"
+                  />
+                  <!-- <div class="text-xs text-gray-500 max-w-xs truncate">
+                    {{ brand.url }}
+                  </div> -->
+                </div>
+              </td>
+              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                  {{ brand.products?.length || 0 }} produit(s)
+                </span>
+              </td>
+              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="editBrand(brand)"
+                    class="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                    title="Modifier"
+                  >
+                    <span class="i-mdi:pencil text-lg"></span>
+                    Modifier
+                  </button>
+                  <button
+                    @click="deleteBrand(brand.id)"
+                    class="text-red-600 hover:text-red-900 flex items-center gap-1"
+                    title="Supprimer"
+                  >
+                    <span class="i-mdi:delete text-lg"></span>
+                    Supprimer
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr v-if="brands.length === 0">
+              <td colspan="4" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center text-gray-500">
+                Aucune marque trouvée
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Créer/Modifier Marque -->
       <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-md m-4">
-          <h2 class="text-2xl font-bold mb-4">{{ editingCategory ? 'Modifier' : 'Créer' }} une catégorie</h2>
+          <h2 class="text-2xl font-bold mb-4">{{ editingBrand ? 'Modifier' : 'Créer' }} une marque</h2>
           
-          <form @submit.prevent="submitCategory" class="space-y-4">
+          <!-- Erreurs de validation -->
+          <div v-if="page.props.flash?.errors" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+            <div v-for="(error, field) in page.props.flash.errors" :key="field">
+              <strong>{{ field }}:</strong> {{ error }}
+            </div>
+          </div>
+          
+          <form @submit.prevent="submitBrand" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium mb-2">Nom de la catégorie *</label>
+              <label class="block text-sm font-medium mb-2">Nom de la marque *</label>
               <input
                 v-model="formData.name"
                 type="text"
@@ -77,7 +116,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">Image de la catégorie</label>
+              <label class="block text-sm font-medium mb-2">Image de la marque</label>
               <div class="space-y-3">
                 <div v-if="formData.url && !formData.url.startsWith('http')" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <img 
@@ -100,7 +139,7 @@
                     class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <p class="text-xs text-gray-500 mt-1">
-                    Formats acceptés: JPG, PNG, GIF. Max 5MB.
+                    Formats acceptés: JPG, PNG, GIF, WebP. Max 5MB.
                   </p>
                 </div>
                 
@@ -138,25 +177,12 @@
               </p>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-2">Catégorie parent (optionnel)</label>
-              <select
-                v-model="formData.parentId"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">Aucune (catégorie principale)</option>
-                <option v-for="cat in categories.filter(c => !c.parentId)" :key="cat.id" :value="cat.id">
-                  {{ cat.name }}
-                </option>
-              </select>
-            </div>
-
             <div class="flex gap-2">
               <button
                 type="submit"
                 class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
               >
-                {{ editingCategory ? 'Modifier' : 'Créer' }}
+                {{ editingBrand ? 'Modifier' : 'Créer' }}
               </button>
               <button
                 type="button"
@@ -174,74 +200,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import Layout from '~/components/admin/Layout.vue'
-import PaginatedList from '~/components/admin/PaginatedList.vue'
 
-interface Category {
+interface Brand {
   id: number
   name: string
   url: string
-  parentId: number | null
-  subCategories?: Category[]
+  products?: any[]
 }
 
-const props = defineProps<{
-  categories: Category[]
-}>()
-
-// Définition des en-têtes pour le tableau
-const categoryHeaders = [
-  { key: 'name', label: 'Nom' },
-  { key: 'image', label: 'Image' },
-  { key: 'subCategories', label: 'Sous-catégories' },
-  { key: 'actions', label: 'Actions' }
-]
-
-// Aplatir les catégories et sous-catégories pour la pagination
-const allCategories = computed(() => {
-  const flattened: Category[] = []
-  
-  props.categories.forEach(category => {
-    // Ajouter la catégorie principale
-    flattened.push(category)
-    
-    // Ajouter les sous-catégories
-    if (category.subCategories) {
-      category.subCategories.forEach(subCategory => {
-        flattened.push(subCategory)
-      })
-    }
-  })
-  
-  return flattened
-})
+const page = usePage()
+const brands = page.props.brands as Brand[]
 
 const showCreateModal = ref(false)
-const editingCategory = ref<Category | null>(null)
+const editingBrand = ref<Brand | null>(null)
 const selectedFile = ref<File | null>(null)
 const previewUrl = ref<string>('')
 const formData = ref({
   name: '',
-  url: '',
-  parentId: ''
+  url: ''
 })
 
 const openCreateModal = () => {
-  editingCategory.value = null
-  formData.value = { name: '', url: '', parentId: '' }
+  editingBrand.value = null
+  formData.value = { name: '', url: '' }
   selectedFile.value = null
   previewUrl.value = ''
   showCreateModal.value = true
 }
 
-const editCategory = (category: Category) => {
-  editingCategory.value = category
+const editBrand = (brand: Brand) => {
+  editingBrand.value = brand
   formData.value = {
-    name: category.name,
-    url: category.url,
-    parentId: category.parentId?.toString() || ''
+    name: brand.name,
+    url: brand.url
   }
   selectedFile.value = null
   previewUrl.value = ''
@@ -250,8 +244,8 @@ const editCategory = (category: Category) => {
 
 const closeModal = () => {
   showCreateModal.value = false
-  editingCategory.value = null
-  formData.value = { name: '', url: '', parentId: '' }
+  editingBrand.value = null
+  formData.value = { name: '', url: '' }
   selectedFile.value = null
   previewUrl.value = ''
 }
@@ -296,17 +290,16 @@ const removeSelectedFile = () => {
   }
 }
 
-const submitCategory = () => {
-  const url = editingCategory.value 
-    ? `/dashboard/categories/edit/${editingCategory.value.id}`
-    : '/dashboard/categories/create'
+const submitBrand = () => {
+  const url = editingBrand.value 
+    ? `/dashboard/brands/edit/${editingBrand.value.id}`
+    : '/dashboard/brands/create'
 
   // Utiliser FormData pour envoyer l'image
   const formDataToSend = new FormData()
   
   // Ajouter les champs du formulaire
   formDataToSend.append('name', formData.value.name)
-  formDataToSend.append('parentId', formData.value.parentId || '')
   
   // Ajouter l'URL seulement si elle est fournie et qu'il n'y a pas de nouvelle image
   if (formData.value.url && !selectedFile.value) {
@@ -338,33 +331,33 @@ const submitCategory = () => {
   })
 }
 
-const deleteCategory = (id: number) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-    router.delete(`/dashboard/categories/delete/${id}`)
+const deleteBrand = (id: number) => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cette marque ? Cette action est irréversible.')) {
+    router.delete(`/dashboard/brands/delete/${id}`)
   }
 }
 
-const getCategoryImageUrl = (category: Category) => {
-  // Si l'URL de la catégorie existe, l'utiliser
-  if (category.url) {
+const getBrandImageUrl = (brand: Brand) => {
+  // Si l'URL de la marque existe, l'utiliser
+  if (brand.url) {
     // Pour les fichiers locaux, s'assurer que l'URL est correcte
-    if (category.url.startsWith('/uploads/')) {
-      return category.url
+    if (brand.url.startsWith('/uploads/')) {
+      return brand.url
     }
     // Pour les URLs externes, les remplacer par l'image par défaut locale
-    if (category.url.startsWith('http')) {
-      return '/uploads/categories/default-category.jpg'
+    if (brand.url.startsWith('http')) {
+      return '/uploads/brands/default-brand.jpg'
     }
     // Sinon, considérer que c'est un chemin local
-    return category.url.startsWith('/') ? category.url : '/' + category.url
+    return brand.url.startsWith('/') ? brand.url : '/' + brand.url
   }
   // Sinon, utiliser une image par défaut locale
-  return '/uploads/categories/default-category.jpg'
+  return '/uploads/brands/default-brand.jpg'
 }
 
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   // Fallback vers l'image par défaut locale en cas d'erreur
-  img.src = '/uploads/categories/default-category.jpg'
+  img.src = '/uploads/brands/default-brand.jpg'
 }
 </script>

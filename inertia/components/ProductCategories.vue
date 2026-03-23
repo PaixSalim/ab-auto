@@ -1,36 +1,36 @@
 <template>
-  <section>
-    <div v-if="useStore.categories.length > 0" class="py-12 px-1">
-      <h2 class="text-2xl font-bold text-center mb-12">
-        Commander on vous livre
-      </h2>
+  <section class="w-full">
+    <div v-if="useStore.categories.length > 0" class="py-8">
+      <!-- Section Header -->
+      <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-200">
+        <h2 class="text-3xl font-black text-gray-900">Toutes les catégories</h2>
+        <a href="/catalogue" class="text-red-600 font-semibold hover:underline">Tout voir →</a>
+      </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <!-- Categories Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
         <div
           v-for="category in useStore.categories"
           :key="category.id"
-          class="group relative overflow-hidden"
+          class="bg-white rounded-xl p-4 text-center hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-1"
           @click="openBrandModal(category)"
           @mouseenter="fetchBrandByCategory(category)"
         >
-          <!-- Card Background with Gradient -->
-          <div class="aspect-square rounded-2xl overflow-hidden bg-white border border-1 p1 transition-transform duration-500 hover:scale-105">
-            <!-- Category Icon -->
-            <div class="h-full w-full relative flex flex-col items-center justify-between">
-              <img
-                :src="category.url"
-                :alt="category.name"
-                class="w-20 h-20 md:(w-36 h-36) transition-all duration-300"
-              />
+          <!-- Category Icon -->
+          <div class="text-3xl mb-3">
+            <img
+              :src="category.url"
+              :alt="category.name"
+              class="w-12 h-12 md:w-16 md:h-16 mx-auto object-contain transition-all duration-300"
+            />
+          </div>
 
-              <!-- Category Info -->
-              <div class="text-center">
-                <h3 class="md:text-lg ">{{ category.name.length > 15 ? category.name.substring(0, 20) + '...' : category.name }}</h3>
-                <span class="text-xs text-gray-400">{{ category.items }} produits</span>
-              </div>
-
-              <!-- Hover Effect -->
-            </div>
+          <!-- Category Info -->
+          <div class="text-center">
+            <h3 class="text-sm font-semibold line-clamp-1">
+              {{ category.name.length > 15 ? category.name.substring(0, 15) + '...' : category.name }}
+            </h3>
+            <span class="text-xs opacity-75">{{ category.items }} produits</span>
           </div>
         </div>
       </div>
@@ -61,53 +61,55 @@
                 leave-from="opacity-100 scale-100"
                 leave-to="opacity-0 scale-95"
               >
-                <DialogPanel class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl transform transition-all">
+                <DialogPanel class="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-xl transform transition-all">
                   <div class="relative">
                     <!-- Header -->
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                      <DialogTitle class="text-xl font-semibold text-gray-900 dark:text-white">
-                        Sélectionnez votre véhicule
+                    <div class="px-6 py-4 border-b border-gray-200 bg-red-600 text-white">
+                      <DialogTitle class="text-xl font-semibold">
+                        Sélectionnez votre marque - {{ selectedCategory?.name }}
                       </DialogTitle>
                       <button
                         @click="closeModal"
-                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                        class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
                       >
                         <XIcon class="w-6 h-6" />
                       </button>
                     </div>
 
                     <!-- Content -->
-                    <div class="px-6 py-4">
+                    <div class="px-6 py-6">
                       <!-- Search Bar -->
                       <div class="relative mb-6">
                         <input
                           type="text"
                           v-model="searchQuery"
                           placeholder="Rechercher une marque..."
-                          class="w-full px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          class="w-full px-4 py-3 pl-12 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-900 placeholder-gray-500"
                         />
-                        <SearchIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <SearchIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       </div>
 
                       <!-- Brands Grid -->
-                      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
                         <button
                           v-for="brand in filteredBrands"
                           :key="brand.id"
                           @click="selectBrand(brand)"
                           @mouseenter="hoverBrand(brand)"
-                          class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          class="flex flex-col items-center p-4 rounded-lg hover:bg-red-50 transition-colors group"
                         >
-                          <img :src="brand.url" :alt="brand.name" class="w-16 h-16 object-contain mb-2" />
-                          <span class="text-sm text-center font-medium">{{ brand.name }}</span>
+                          <div class="w-16 h-16 flex items-center justify-center mb-2 bg-white rounded-lg p-2 group-hover:shadow-md transition-shadow">
+                            <img :src="brand.url" :alt="brand.name" class="w-full h-full object-contain" />
+                          </div>
+                          <span class="text-sm text-center font-medium text-gray-700 group-hover:text-red-600 transition-colors">{{ brand.name }}</span>
                         </button>
                       </div>
                     </div>
 
-                    <!-- Selected Category Info -->
-                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50">
-                      <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Catégorie sélectionnée: <span class="font-medium text-gray-900 dark:text-white">{{ selectedCategory?.name }}</span>
+                    <!-- Footer -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                      <p class="text-sm text-gray-600">
+                        Catégorie: <span class="font-semibold text-red-600">{{ selectedCategory?.name }}</span>
                       </p>
                     </div>
                   </div>
@@ -166,7 +168,7 @@ const closeModal = () => {
   searchQuery.value = ''
 }
 
-const hoverBrand = async (brand: BrandsDto) => {
+const hoverBrand = async (_brand: BrandsDto) => {
   if (useStore.products.length === 0) {
     await useStore.fetchProducts()
   }

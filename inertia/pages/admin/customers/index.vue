@@ -12,50 +12,44 @@
         </button>
       </div>
 
-      <div class="bg-background-admin rounded-lg shadow-md overflow-hidden">
-        <table class="w-full">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom de l'entreprise</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-background-admin divide-y divide-gray-700">
-            <tr v-if="customers.length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-description">
-                Aucun client pour le moment
-              </td>
-            </tr>
-            <tr v-for="customer in customers" :key="customer.id" class="hover:bg-gray-700/30">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-title">{{ customer.id }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-title">{{ customer.fullName }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-description">{{ customer.email }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-description">{{ customer.phone || '—' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-description">{{ formatDate(customer.createdAt) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm flex items-center gap-2">
-                <button
-                  @click="openEditModal(customer)"
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-1"
-                >
-                  <span class="i-mdi:pencil"></span>
-                  Modifier
-                </button>
-                <button
-                  @click="deleteCustomer(customer.id)"
-                  class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-1"
-                >
-                  <span class="i-mdi:delete"></span>
-                  Supprimer
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <PaginatedList
+        :items="customers"
+        :headers="customerHeaders"
+        :items-per-page="10"
+        item-name="clients"
+        empty-message="Aucun client pour le moment."
+      >
+        <template #cell-fullName="{ item }">
+          <span class="font-medium text-white">{{ item.fullName }}</span>
+        </template>
+        <template #cell-email="{ item }">
+          <span class="text-gray-300">{{ item.email }}</span>
+        </template>
+        <template #cell-phone="{ item }">
+          <span class="text-gray-300">{{ item.phone || '—' }}</span>
+        </template>
+        <template #cell-createdAt="{ item }">
+          <span class="text-gray-300">{{ formatDate(item.createdAt) }}</span>
+        </template>
+        <template #cell-actions="{ item }">
+          <div class="flex items-center gap-2">
+            <button
+              @click="openEditModal(item)"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-1"
+            >
+              <span class="i-mdi:pencil"></span>
+              Modifier
+            </button>
+            <button
+              @click="deleteCustomer(item.id)"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-1"
+            >
+              <span class="i-mdi:delete"></span>
+              Supprimer
+            </button>
+          </div>
+        </template>
+      </PaginatedList>
 
       <!-- Modal Créer client -->
       <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -123,6 +117,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Layout from '~/components/admin/Layout.vue'
+import PaginatedList from '~/components/admin/PaginatedList.vue'
 
 interface Customer {
   id: number
@@ -132,7 +127,17 @@ interface Customer {
   createdAt: string
 }
 
-defineProps<{ customers: Customer[] }>()
+const props = defineProps<{ customers: Customer[] }>()
+
+// Définition des en-têtes pour le tableau
+const customerHeaders = [
+  { key: 'id', label: 'ID' },
+  { key: 'fullName', label: 'Nom de l\'entreprise' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Téléphone' },
+  { key: 'createdAt', label: 'Date d\'inscription' },
+  { key: 'actions', label: 'Actions', textClass: 'text-right' }
+]
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)

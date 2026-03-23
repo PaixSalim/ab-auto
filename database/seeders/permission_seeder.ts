@@ -52,6 +52,13 @@ export default class extends BaseSeeder {
       { group: 'Promotions', name: 'Créer des promotions', slug: 'create_promotions' },
       { group: 'Promotions', name: 'Modifier des promotions', slug: 'edit_promotions' },
       { group: 'Promotions', name: 'Supprimer des promotions', slug: 'delete_promotions' },
+
+      // Marques
+      { group: 'Marques', name: 'Voir les marques', slug: 'view_brands' },
+      { group: 'Marques', name: 'Gérer les marques', slug: 'manage_brands' },
+      { group: 'Marques', name: 'Créer des marques', slug: 'create_brands' },
+      { group: 'Marques', name: 'Modifier des marques', slug: 'edit_brands' },
+      { group: 'Marques', name: 'Supprimer des marques', slug: 'delete_brands' },
     ]
 
     await Permission.updateOrCreateMany('slug', permissions)

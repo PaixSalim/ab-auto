@@ -1,21 +1,21 @@
 <template>
-  <div class="mx-auto px-4 my-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Tous nos produits</h2>
-      <a href="/catalogue" class="text-primary hover:underline flex items-center gap-2">
-        Voir tout le catalogue
-        <span class="i-mdi:arrow-right"></span>
+  <div class="w-full">
+    <!-- Section Header -->
+    <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-200">
+      <h2 class="text-3xl font-black text-gray-900">Tous nos produits</h2>
+      <a href="/catalogue" class="text-red-600 font-semibold hover:underline flex items-center gap-2">
+        Voir plus →
       </a>
     </div>
 
-    <!-- Filtres par catégorie -->
-    <div class="flex gap-2 my-6 overflow-x-auto pb-2 scrollbar-hide">
+    <!-- Category Filters -->
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
       <button
         @click="selectedCategory = null"
         :class="[
           'px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
           selectedCategory === null
-            ? 'bg-primary text-white'
+            ? 'bg-red-600 text-white'
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         ]"
       >
@@ -28,7 +28,7 @@
         :class="[
           'px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
           selectedCategory === category.id
-            ? 'bg-primary text-white'
+            ? 'bg-red-600 text-white'
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         ]"
       >
@@ -36,55 +36,69 @@
       </button>
     </div>
 
-    <!-- Grille de produits -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <!-- Products Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       <div
-        v-for="product in filteredProducts.slice(0, 8)"
+        v-for="product in filteredProducts.slice(0, 10)"
         :key="product.id"
-        class="rounded-2xl p-4 transition-transform border hover:scale-[1.02] bg-white"
+        class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
       >
-        <div class="relative aspect-square mb-4">
+        <div class="relative aspect-square">
           <img
             @click="navigateToProduct(product)"
             :src="product.medias && product.medias.length > 0 ? product.medias[0].url : 'https://via.placeholder.com/300'"
             :alt="product.name"
-            class="w-full h-full object-contain hover:border hover:border-primary rounded-lg cursor-pointer"
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
+          
+          <!-- State Badge -->
           <span
             v-if="product.state === 'new'"
-            class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full"
+            class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded"
           >
             Neuf
           </span>
           <span
             v-else
-            class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full"
+            class="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded"
           >
             Occasion
           </span>
+          
+          <!-- Wishlist Button -->
+          <button class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+            <span class="text-red-500">♡</span>
+          </button>
         </div>
 
-        <div class="space-y-2">
-          <h3 class="font-semibold text-lg line-clamp-2">{{ product.name }}</h3>
-          <p class="text-sm text-gray-600 line-clamp-2">{{ product.description }}</p>
+        <div class="p-3">
+          <h3 @click="navigateToProduct(product)" class="font-semibold text-sm text-gray-900 line-clamp-2 mb-2 hover:text-red-600 transition-colors cursor-pointer">
+            {{ product.name }}
+          </h3>
           
-          <div class="flex items-center gap-2 text-sm text-gray-500">
+          <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ product.description }}</p>
+          
+          <div class="flex items-center gap-1 text-xs text-gray-500 mb-2">
             <span class="i-mdi:tag"></span>
             <span>{{ product.category?.name }}</span>
           </div>
 
-          <div class="flex items-center justify-between">
-            <span class="text-lg font-bold text-primary">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg font-black text-red-600">
               {{ formatPrice(product.price) }} FCFA
             </span>
           </div>
 
+          <div class="flex items-center gap-1 text-xs text-gray-500 mb-3">
+            <span class="text-orange-500">★★★★☆</span>
+            <span>{{ Math.floor(Math.random() * 500) + 50 }} vendus</span>
+          </div>
+
           <button
-            class="w-full bg-primary hover:bg-primary/80 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg transition-colors text-sm"
             @click="navigateToProduct(product)"
           >
             Voir détails
-            <span class="i-mdi:arrow-right"></span>
           </button>
         </div>
       </div>

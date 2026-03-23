@@ -71,11 +71,16 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   async isAdmin() {
     await this.load('roles' as any)
-    return this.roles.some((role) => role.slug === 'admin')
+    return this.roles.some((role) => role.slug === 'admin' || role.slug === 'superadmin')
   }
 
   async isSeller() {
     await this.load('roles' as any)
     return this.roles.some((role) => role.slug === 'seller')
+  }
+
+  async isSuperAdmin() {
+    await this.load('roles' as any)
+    return this.roles.some((role) => role.slug === 'superadmin')
   }
 }
