@@ -24,6 +24,7 @@ function handleSubmit() {
     showPopup.value = true
     popupType.value = PopupType.ERROR
     popupMessage.value = 'Veuillez renseigner un mot de passe valide'
+    console.log('Popup error affiché:', showPopup.value, popupType.value, popupMessage.value)
     setTimeout(() => {
       showPopup.value = false
     }, 1400)
@@ -37,12 +38,23 @@ function handleSubmit() {
   router.post('/auth/login', form, {
     onSuccess: () => {
       isLoading.value = false
+      showPopup.value = true
+      popupType.value = PopupType.SUCCESS
+      popupMessage.value = 'Connexion réussie ! Redirection en cours...'
+      console.log('Popup success affiché:', showPopup.value, popupType.value, popupMessage.value)
+      
+      // Attendre 2 secondes avant de rediriger pour laisser le temps au toast de s'afficher
+      setTimeout(() => {
+        showPopup.value = false
+        // La redirection se fera automatiquement via Inertia après le onSuccess
+      }, 2000)
     },
     onError: (errors) => {
       isLoading.value = false
       showPopup.value = true
       popupType.value = PopupType.ERROR
       popupMessage.value = Object.values(errors)[0] || 'Une erreur est survenue lors de la connexion'
+      console.log('Popup error serveur affiché:', showPopup.value, popupType.value, popupMessage.value)
       setTimeout(() => {
         showPopup.value = false
       }, 3400)

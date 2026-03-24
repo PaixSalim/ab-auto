@@ -11,7 +11,7 @@ const model = defineModel()
 
 <template>
   <div class="my-2">
-    <label for="email" class="block text-xs sm:text-sm lg:text-base font-medium text-title mb-1">
+    <label :for="id" class="block text-xs sm:text-sm lg:text-base font-medium text-white mb-1">
       {{ label }}
     </label>
     <input

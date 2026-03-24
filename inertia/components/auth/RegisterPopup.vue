@@ -130,7 +130,7 @@ function handleSubmit() {
           <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
             {{ step === 1 ? 'Créer un compte' : (userType === 'seller' ? 'Devenir Vendeur' : 'Inscription Client') }}
           </h2>
-          <p class="text-gray-500 text-center mb-8 text-sm">
+          <p class="text-gray-600 text-center mb-8 text-sm">
             {{ step === 1 ? 'Choisissez le type de compte qui vous correspond' : 'Veuillez remplir les informations ci-dessous' }}
           </p>
 
@@ -145,7 +145,7 @@ function handleSubmit() {
               </div>
               <div>
                 <h3 class="font-bold text-gray-900">Client simple</h3>
-                <p class="text-xs text-gray-500">Pour acheter et suivre vos commandes</p>
+                <p class="text-xs text-gray-600">Pour acheter et suivre vos commandes</p>
               </div>
               <div class="i-mdi-chevron-right ml-auto text-gray-400 group-hover:text-primary transition h-5 w-5" />
             </button>
@@ -159,7 +159,7 @@ function handleSubmit() {
               </div>
               <div>
                 <h3 class="font-bold text-gray-900">Vendeur professionnel</h3>
-                <p class="text-xs text-gray-500">Pour vendre vos véhicules et accessoires</p>
+                <p class="text-xs text-gray-600">Pour vendre vos véhicules et accessoires</p>
               </div>
               <div class="i-mdi-chevron-right ml-auto text-gray-400 group-hover:text-primary transition h-5 w-5" />
             </button>
@@ -251,7 +251,7 @@ function handleSubmit() {
               <button
                 type="button"
                 @click="backToType"
-                class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 transition"
+                class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-gray-700 hover:bg-gray-50 transition"
               >
                 Retour
               </button>
@@ -267,7 +267,7 @@ function handleSubmit() {
           </form>
 
           <div v-if="step === 1" class="mt-8 text-center">
-            <p class="text-gray-500 text-sm">
+            <p class="text-gray-600 text-sm">
               Vous avez déjà un compte ?
               <Link href="/auth/login" class="text-primary hover:underline font-bold ml-1">Se connecter</Link>
             </p>

@@ -7,6 +7,7 @@ import Product from '#models/product'
 import Order from '#models/order'
 import Category from '#models/category'
 import Brand from '#models/brand'
+import Comment from '#models/comment'
 
 export default class DashboardController {
   async index({ inertia, auth }: HttpContext) {
@@ -27,6 +28,8 @@ export default class DashboardController {
     let customersCount = 0
     let validatedSellersCount = 0
     let pendingProductsCount = 0
+    let validatedProductsCount = 0
+    let commentsCount = 0
     let recentOrders: any[] = []
     let monthlyStats: any[] = []
     let topCategories: any[] = []
@@ -46,6 +49,10 @@ export default class DashboardController {
 
       // Statistiques produits
       pendingProductsCount = await Product.query().where('validation_status', 'pending').count('* as total').then(r => Number(r[0].$extras.total))
+      validatedProductsCount = await Product.query().where('validation_status', 'approved').count('* as total').then(r => Number(r[0].$extras.total))
+      
+      // Statistiques commentaires
+      commentsCount = await Comment.query().count('* as total').then(r => Number(r[0].$extras.total))
 
       // Données récentes
       recentProducts = await Product.query().preload('category').preload('brand').orderBy('created_at', 'desc').limit(5)
@@ -83,6 +90,12 @@ export default class DashboardController {
     } else if (isSeller) {
       productsCount = await Product.query().where('seller_id', user.id).count('* as total').then(r => Number(r[0].$extras.total))
       ordersCount = await Order.query().whereHas('product', (q) => q.where('seller_id', user.id)).count('* as total').then(r => Number(r[0].$extras.total))
+      
+      // Statistiques commentaires pour les vendeurs
+      commentsCount = await Comment.query()
+        .whereHas('product', (query) => query.where('seller_id', user.id))
+        .count('* as total')
+        .then(r => Number(r[0].$extras.total))
 
       recentProducts = await Product.query().where('seller_id', user.id).preload('category').preload('brand').orderBy('created_at', 'desc').limit(5)
       recentOrders = await Order.query()
@@ -95,7 +108,10 @@ export default class DashboardController {
 
     return inertia.render('dashboard', {
       auth: {
-        user: user,
+        user: {
+          ...user.toJSON(),
+          isValidated: user.isValidated || false
+        },
         roles: roles
       },
       stats: {
@@ -106,7 +122,9 @@ export default class DashboardController {
         brands: brandsCount,
         customers: customersCount,
         validatedSellers: validatedSellersCount,
-        pendingProducts: pendingProductsCount
+        pendingProducts: pendingProductsCount,
+        validatedProducts: validatedProductsCount,
+        comments: commentsCount
       },
       recentProducts,
       recentOrders,

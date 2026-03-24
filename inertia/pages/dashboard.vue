@@ -8,7 +8,7 @@ const page = usePage()
 const user = computed(() => page.props.auth.user)
 const roles = computed(() => page.props.auth.roles || [])
 
-const isAdmin = computed(() => roles.value.includes('admin'))
+const isAdmin = computed(() => roles.value.includes('admin') || roles.value.includes('superadmin'))
 const isSeller = computed(() => roles.value.includes('seller'))
 
 // Définition des en-têtes pour les tableaux
@@ -42,26 +42,34 @@ const props = defineProps<{
     customers?: number
     validatedSellers?: number
     pendingProducts?: number
+    validatedProducts?: number
+    comments?: number
   }
   recentProducts: any[]
   recentOrders?: any[]
   pendingSellersList?: any[]
 }>()
 
+// Log pour déboguer les données reçues
+console.log('Dashboard props stats:', props.stats)
+console.log('isAdmin:', isAdmin.value)
+
 const displayStats = computed(() => {
   const items = [
-    { label: 'Articles Totals', value: props.stats.products, icon: 'i-mdi-package-variant', color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'Articles soumis', value: props.stats.products, icon: 'i-mdi-package-variant', color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'Article en attente', value: props.stats.pendingProducts || 0, icon: 'i-mdi-clock-outline', color: 'text-amber-600', bg: 'bg-amber-50' },
+    { label: 'Articles validés', value: props.stats.validatedProducts || 0, icon: 'i-mdi-check-circle', color: 'text-green-600', bg: 'bg-green-50' },
     { label: 'Commandes', value: props.stats.orders, icon: 'i-mdi-cart-outline', color: 'text-blue-600', bg: 'bg-blue-50' },
   ]
   
   if (isAdmin.value) {
     items.push(
+      { label: 'Vendeurs validés', value: props.stats.validatedSellers || 0, icon: 'i-mdi-account-check', color: 'text-green-600', bg: 'bg-green-50' },
       { label: 'Vendeurs en attente', value: props.stats.pendingSellers || 0, icon: 'i-mdi-account-clock-outline', color: 'text-orange-600', bg: 'bg-orange-50' },
       { label: 'Clients', value: props.stats.customers || 0, icon: 'i-mdi-account-group', color: 'text-cyan-600', bg: 'bg-cyan-50' },
       { label: 'Catégories', value: props.stats.categories || 0, icon: 'i-mdi-folder-outline', color: 'text-indigo-600', bg: 'bg-indigo-50' },
       { label: 'Marques', value: props.stats.brands || 0, icon: 'i-mdi-tag-outline', color: 'text-pink-600', bg: 'bg-pink-50' },
-      { label: 'Article en attente', value: props.stats.pendingProducts || 0, icon: 'i-mdi-clock-outline', color: 'text-amber-600', bg: 'bg-amber-50' },
-      { label: 'Vendeurs validés', value: props.stats.validatedSellers || 0, icon: 'i-mdi-account-check', color: 'text-green-600', bg: 'bg-green-50' }
+      { label: 'Commentaires', value: props.stats.comments || 0, icon: 'i-mdi-comment-multiple-outline', color: 'text-teal-600', bg: 'bg-teal-50' }
     )
   }
   
@@ -70,12 +78,12 @@ const displayStats = computed(() => {
 </script>
 
 <template>
-  <Head title="Tableau de Bord" />
+  <Head title="Tableau de Bord"/>
   
   <Layout :title="'Tableau de Bord ' + (isAdmin ? 'Admin' : 'Vendeur')">
     <div class="space-y-10">
       <!-- Welcome Section -->
-      <section class="relative overflow-hidden p-8 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl">
+      <!-- <section class="relative overflow-hidden p-8 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl">
          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                <h3 class="text-3xl font-bold mb-2">Bon retour, {{ user?.fullName }} !</h3>
@@ -93,10 +101,10 @@ const displayStats = computed(() => {
             </div>
          </div>
          
-         <!-- Decorative Background Elements -->
+       
          <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/20 rounded-full blur-[100px]"></div>
          <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px]"></div>
-      </section>
+      </section> -->
 
       <!-- Stats Grid -->
       <section :class="isAdmin ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'grid grid-cols-1 md:grid-cols-3 gap-6'">
