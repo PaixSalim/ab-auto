@@ -33,7 +33,7 @@ jobs:
         with:
           host: ${{ secrets.HOSTINGER_IP }}
           username: ${{ secrets.HOSTINGER_USER }}
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          key: ${{ secrets.HOSTINGER_AUTO_AB_SSH_KEY }}
           port: 65002
           source: "build/*"
           target: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
@@ -44,7 +44,7 @@ jobs:
         with:
           host: ${{ secrets.HOSTINGER_IP }}
           username: ${{ secrets.HOSTINGER_USER }}
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          key: ${{ secrets.HOSTINGER_AUTO_AB_SSH_KEY }}
           port: 65002
           script: |
             cd ${{ secrets.HOSTINGER_DEPLOY_PATH }}
