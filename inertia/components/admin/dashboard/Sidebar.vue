@@ -13,8 +13,26 @@ const permissions = computed(() => auth.value.permissions || [])
 const isSuperAdmin = computed(() => roles.value.includes('superadmin'))
 const isAdmin = computed(() => roles.value.includes('admin') || roles.value.includes('superadmin'))
 
+// DEBUG : Ajouter des logs pour diagnostiquer
+// console.log('🔍 Sidebar Debug:', {
+//   auth: auth.value,
+//   roles: roles.value,
+//   permissions: permissions.value,
+//   isSuperAdmin: isSuperAdmin.value,
+//   isAdmin: isAdmin.value
+// })
+const logoUrl = '/uploads/logos/logo.png'
 // SuperAdmin bypasses all checks. Others need explicit permission.
-const can = (slug: string) => isSuperAdmin.value || permissions.value.includes(slug)
+const can = (slug: string) => {
+  const result = isSuperAdmin.value || isAdmin.value || permissions.value.includes(slug)
+  console.log(`🔐 Permission check for "${slug}":`, {
+    hasPermission: permissions.value.includes(slug),
+    isAdmin: isAdmin.value,
+    isSuperAdmin: isSuperAdmin.value,
+    result: result
+  })
+  return result
+}
 
 const navigation = computed(() => {
   const groups = [
@@ -37,6 +55,7 @@ const navigation = computed(() => {
       ...(can('view_comments') || can('manage_comments') ? [{ label: 'Commentaires', route: '/dashboard/comments', icon: 'i-mdi-comment-multiple-outline' }] : []),
       ...(can('validate_products') ? [{ label: 'Validation Articles', route: '/dashboard/validation', icon: 'i-mdi-check-circle-outline' }] : []),
       ...(can('view_promotions') || can('manage_promotions') ? [{ label: 'Promotions', route: '/dashboard/promotions', icon: 'i-mdi-tag-outline' }] : []),
+      ...(can('view_brands') || can('manage_brands') ? [{ label: 'Marques', route: '/dashboard/brands', icon: 'i-mdi-truck-outline' }] : []),
     ]
 
     const adminItems = [
@@ -71,7 +90,7 @@ const navigation = computed(() => {
     <div class="p-8 pb-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-           <img src="https://auto-cdn.uvatis.com/logo.png" class="w-8 h-8 object-contain" alt="Logo" />
+           <img :src="logoUrl" class="w-8 h-8 object-contain" alt="Logo" />
         </div>
         <div>
           <span class="text-white text-xl font-bold tracking-tight">Auto-Pro</span>

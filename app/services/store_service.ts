@@ -234,34 +234,72 @@ export class StoreService {
 
   async getPromotedProducts() {
     const currentDate = DateTime.local().toFormat('yyyy-MM-dd HH:mm:ss')
+    console.log('Current date for promotion filter:', currentDate)
+    
+    // Temporairement: afficher toutes les promotions pour que la vôtre soit visible
     const promotedProducts = await Promotion.query()
       .select(
+        'promotions.id as promotion_id',
         'products.id',
         'products.name',
         'products.slug',
         'products.price as original_price',
         'promotions.discount_percent',
         'promotions.url',
+        'promotions.promo_start_date',
+        'promotions.promo_end_date',
         'categories.id as category_id',
         'categories.name as category_name'
       )
-      .where('promo_start_date', '<=', currentDate)
-      .where('promo_end_date', '>=', currentDate)
+      // Temporairement désactivé pour voir toutes les promotions
+      // .where('promo_start_date', '<=', currentDate)
+      // .where('promo_end_date', '>=', currentDate)
       .innerJoin('products', 'promotions.product_id', 'products.id')
       .innerJoin('categories', 'products.category_id', 'categories.id')
 
-    return promotedProducts.map((promotion) => ({
-      id: promotion.id,
-      name: promotion.$extras.name,
-      slug: promotion.$extras.slug,
-      url: promotion.url || null, // URL de la promotion (peut être null si pas d'image)
-      originalPrice: promotion.$extras.original_price,
-      discountPercent: promotion.discountPercent,
-      promoPrice:
-        promotion.$extras.original_price -
-        (promotion.$extras.original_price * promotion.discountPercent) / 100,
-      category: promotion.$extras.category_name,
-    }))
+    console.log('Found all promotions (no date filter):', promotedProducts.length)
+    
+    return promotedProducts.map((promotion) => {
+      let imageUrl = promotion.url || null
+      
+      // CORRECTION : Remplacer toutes les URLs externes par l'image par défaut locale
+      if (imageUrl) {
+        if (imageUrl.startsWith('https://auto-cdn.uvatis.com/') || 
+            imageUrl.startsWith('https://cdn.autodoc.de/')) {
+          console.log('🔄 Replacing external URL with local default:', imageUrl)
+          imageUrl = '/uploads/products/default-product.jpg'
+        }
+      }
+      
+      // Pour les fichiers locaux, s'assurer que l'URL commence par /
+      if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+        imageUrl = '/' + imageUrl
+      }
+      
+      console.log('🔍 PROMOTION DEBUG:', {
+        promotionId: promotion.$extras.promotion_id,
+        productId: promotion.id,
+        productName: promotion.$extras.name,
+        originalUrl: promotion.url,
+        finalUrl: imageUrl,
+        startDate: promotion.$extras.promo_start_date,
+        endDate: promotion.$extras.promo_end_date,
+        isActive: promotion.$extras.promo_start_date <= currentDate && promotion.$extras.promo_end_date >= currentDate
+      })
+      
+      return {
+        id: promotion.id,
+        name: promotion.$extras.name,
+        slug: promotion.$extras.slug,
+        url: imageUrl, // URL corrigée
+        originalPrice: promotion.$extras.original_price,
+        discountPercent: promotion.discountPercent,
+        promoPrice:
+          promotion.$extras.original_price -
+          (promotion.$extras.original_price * promotion.discountPercent) / 100,
+        category: promotion.$extras.category_name,
+      }
+    })
   }
 
   async getBanners() {

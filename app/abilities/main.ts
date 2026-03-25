@@ -19,6 +19,10 @@ export const isAdmin = Bouncer.ability(async (user: User) => {
   return await user.isAdmin()
 })
 
+export const isSuperAdmin = Bouncer.ability(async (user: User) => {
+  return await user.isSuperAdmin()
+})
+
 export const isSeller = Bouncer.ability(async (user: User) => {
   return (await user.isSeller()) || (await user.isAdmin())
 })
@@ -35,4 +39,17 @@ export const can = Bouncer.ability(async (user: User, permissionSlug: string) =>
 
 export const isOwner = Bouncer.ability(async (user: User, resource: { sellerId: number }) => {
   return user.id === resource.sellerId || (await user.isAdmin())
+})
+
+// Abilities pour les commentaires (admin et superadmin)
+export const canViewComments = Bouncer.ability(async (user: User) => {
+  return await user.isAdmin() // Inclut maintenant admin et superadmin
+})
+
+export const canManageComments = Bouncer.ability(async (user: User) => {
+  return await user.isAdmin() // Inclut maintenant admin et superadmin
+})
+
+export const canDeleteComments = Bouncer.ability(async (user: User) => {
+  return await user.isAdmin() // Inclut maintenant admin et superadmin
 })

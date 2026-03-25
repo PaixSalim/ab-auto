@@ -167,7 +167,7 @@ export default class SellerProductsController {
         description: data.description,
         price: Number(data.price),
         categoryId: Number(data.categoryId),
-        brandId: Number(data.brandId),
+        brandId: data.brandId ? Number(data.brandId) : undefined, // Rendre brandId optionnel
         state: data.state || 'new',
         warranty: data.warranty || '1 mois',
         features: features || [],

@@ -19,7 +19,7 @@ const popupMessage = ref('')
 const closePopup = () => {
   showPopup.value = false
 }
-
+const logoUrl = '/uploads/logos/logo.png'
 function handleSubmit() {
   if (fullName.value.length < 3) {
     showPopup.value = true

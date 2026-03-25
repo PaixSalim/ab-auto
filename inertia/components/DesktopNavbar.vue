@@ -7,34 +7,46 @@ const page = usePage()
 const user = computed(() => (page.props as any).auth?.user)
 const openRegister = inject('openRegister') as () => void
 
+// Logo URL
+const logoUrl = '/uploads/logos/logo.png'
+
 const openLink = () => {
   window.location.href = 'https://api.whatsapp.com/send?phone=22607513333'
 }
 </script>
 
 <template>
-  <header class="hidden md:block bg-white shadow-sm sticky top-0 z-[60]">
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <header class="hidden md:block bg-white shadow-lg sticky top-0 z-[60] border-b-2 border-red-600">
+    <div class="container mx-auto px-4">
+      <!-- Main Header -->
+      <div class="flex items-center justify-between py-3">
         <div class="flex items-center">
-          <Link href="/">
-            <img src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo" class="h-20 w-20 mr-3" />
+          <Link href="/" class="flex items-center">
+            <img :src="logoUrl" alt="AB-AUTO Logo" class="h-12 w-12 mr-3" />
+            <div class="text-2xl font-black text-red-600">
+              AB<span class="text-orange-500">AUTO</span>
+            </div>
           </Link>
         </div>
 
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-2xl mx-8">
+          <SearchBar />
+        </div>
 
+        <!-- Header Icons -->
         <div class="flex items-center space-x-6">
-          <button @click="openLink" class="text-gray-700 dark:text-gray-300 hover:text-green-500 transition">
-            <div class="i-mdi-whatsapp h-7 w-7" />
+          <button @click="openLink" class="text-gray-700 hover:text-green-500 transition-colors" title="Contact WhatsApp">
+            <div class="i-mdi-whatsapp h-6 w-6" />
           </button>
           
           <div v-if="!user" class="flex items-center gap-4">
-            <Link href="/auth/login" class="text-gray-700 hover:text-primary font-bold transition">
+            <Link href="/auth/login" class="text-gray-700 hover:text-red-600 font-bold transition-colors">
               Connexion
             </Link>
             <button 
               @click="openRegister" 
-              class="bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-primary/90 transition font-bold shadow-lg shadow-primary/20"
+              class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-bold shadow-md"
             >
               S'inscrire
             </button>
@@ -42,27 +54,27 @@ const openLink = () => {
           
           <div v-else class="flex items-center gap-3">
             <div class="relative group">
-              <button class="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+              <button class="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors">
                 <span class="text-gray-700 font-medium">{{ user.fullName || user.email }}</span>
                 <div class="i-mdi-chevron-down h-4 w-4" />
               </button>
               
-              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div class="py-1">
-                  <Link href="/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                  <Link href="/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
                     <div class="flex items-center gap-2">
                       <div class="i-mdi-shopping h-4 w-4" />
                       Mes commandes
                     </div>
                   </Link>
-                  <Link href="/comments" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                  <Link href="/comments" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
                     <div class="flex items-center gap-2">
                       <div class="i-mdi-comment h-4 w-4" />
                       Mes commentaires
                     </div>
                   </Link>
                   <div class="border-t border-gray-200 my-1"></div>
-                  <Link href="/auth/logout" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                  <Link href="/auth/logout" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
                     <div class="flex items-center gap-2">
                       <div class="i-mdi-logout h-4 w-4" />
                       Déconnexion
@@ -75,10 +87,35 @@ const openLink = () => {
         </div>
       </div>
 
-      <!-- Barre de recherche -->
-      <div class="pb-3 bg-background-secondary rounded-lg">
-        <SearchBar />
-      </div>
+      <!-- Navigation Categories -->
+      <nav class="bg-gray-50 border-t border-gray-200">
+        <div class="flex items-center gap-0 overflow-x-auto">
+          <Link href="/" class="px-4 py-3 text-sm font-medium text-red-600 border-b-3 border-red-600 whitespace-nowrap">
+            Accueil
+          </Link>
+          <Link href="/catalogue" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Catalogue
+          </Link>
+          <a href="#promotions" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Promotions
+          </a>
+          <Link href="/privacy" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Politique de confidentialité
+          </Link>
+          <!-- <Link href="/categories/pneus" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Pneus
+          </Link>
+          <Link href="/categories/freinage" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Freinage
+          </Link>
+          <Link href="/categories/eclairage" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Éclairage
+          </Link>
+          <Link href="/categories/batterie" class="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 border-b-3 border-transparent hover:border-red-600 whitespace-nowrap transition-colors">
+            Batterie
+          </Link> -->
+        </div>
+      </nav>
     </div>
   </header>
 </template>

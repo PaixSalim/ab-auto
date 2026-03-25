@@ -6,9 +6,16 @@ const driveConfig = defineConfig({
 
   /**
    * The services object can be used to configure multiple file system
-   * services each using the same or a different driver.
+   * services each using same or a different driver.
    */
   services: { 
+    // Disque local pour le développement
+    local: services.fs({
+      location: './public/uploads',
+      visibility: 'public',
+    }),
+    
+    // Disque R2 pour la production
     r2: services.s3({
       credentials: {
         accessKeyId: env.get('R2_KEY'),

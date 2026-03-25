@@ -79,6 +79,10 @@ const page = usePage()
 const user = computed(() => (page.props as any).auth?.user)
 const isSidebarOpen = ref(false)
 
+// Log pour déboguer la valeur de isValidated
+console.log('Seller Layout - User:', user.value)
+console.log('Seller Layout - isValidated:', user.value?.isValidated)
+
 const toggleSidebar = () => {
   if (window.innerWidth < 640) {
     isSidebarOpen.value = !isSidebarOpen.value

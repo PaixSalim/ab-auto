@@ -71,7 +71,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   async isAdmin() {
     await this.load('roles' as any)
-    return this.roles.some((role) => role.slug === 'admin')
+    return this.roles.some((role) => role.slug === 'admin' || role.slug === 'superadmin')
   }
 
   async isSeller() {
@@ -84,5 +84,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
       roleQuery.preload('permissions')
     })
     return this.roles.some((role) => role.permissions.some((permission) => permission.slug === slug))
+  }
+
+  async isSuperAdmin() {
+    await this.load('roles' as any)
+    return this.roles.some((role) => role.slug === 'superadmin')
   }
 }

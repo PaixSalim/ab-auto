@@ -9,7 +9,7 @@
   >
     <div class="flex items-center justify-start mx-4 mt-8">
       <div class="flex items-center">
-        <img src="https://auto-cdn.uvatis.com/logo/logo.png" class="w-15 h-15 rounded-full" alt="Logo Auto-pro" />
+        <img :src="logoUrl" class="w-15 h-15 rounded-full" alt="Logo Auto-pro" />
         <span class="text-primary text-2xl mx-2 font-semibold">Auto-Pro</span>
       </div>
     </div>
@@ -82,4 +82,5 @@ const navs = [
     icon: 'i-mdi-comment-text',
   },
 ]
+const logoUrl = '/uploads/logos/logo.png'
 </script>

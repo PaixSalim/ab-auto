@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import CreateProductModal from '~/components/admin/product/CreateProductModal.vue'
 import EditProductModal from '~/components/admin/product/EditProductModal.vue'
 import ShowProduct from '~/components/admin/product/ShowProduct.vue'
@@ -8,6 +8,7 @@ import MessagePopup from '~/components/admin/product/MessagePopup.vue'
 import { GetProductDto, MediaType } from '#dto/products_interface'
 import { BrandsDto } from '#dto/brands_interface'
 import { CategoryDto } from '#dto/category_dto'
+import Pagination from '~/components/admin/Pagination.vue'
 
 const props = defineProps<{
   products: GetProductDto[]
@@ -108,6 +109,8 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const searchQuery = ref('')
+const currentPage = ref(1)
+const itemsPerPage = ref(12)
 
 const selectedCategoryId = ref<number>(0)
 
@@ -128,6 +131,21 @@ const filteredProducts = computed(() => {
   }
 
   return result
+})
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredProducts.value.slice(start, end)
+})
+
+const totalProducts = computed(() => filteredProducts.value.length)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(totalProducts.value / itemsPerPage.value)))
+
+// Réinitialiser la page quand les filtres changent
+watch([searchQuery, selectedCategoryId], () => {
+  currentPage.value = 1
 })
 
 onMounted(() => {
@@ -188,7 +206,7 @@ const getYouTubeEmbedUrl = (url: string) => {
     <!-- Products Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div
-        v-for="product in filteredProducts"
+        v-for="product in paginatedProducts"
         :key="product.id"
         class="bg-background-secondary rounded-xl overflow-hidden group hover:ring-2 hover:ring-primary transition-all duration-300"
       >
@@ -262,6 +280,16 @@ const getYouTubeEmbedUrl = (url: string) => {
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="totalProducts > 0" class="mt-8">
+      <Pagination
+        v-model:currentPage="currentPage"
+        :total-items="totalProducts"
+        :items-per-page="itemsPerPage"
+        item-name="articles"
+      />
     </div>
 
     <!-- CRUD Modal -->

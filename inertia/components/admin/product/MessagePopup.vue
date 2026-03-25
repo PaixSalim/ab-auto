@@ -2,12 +2,12 @@
   <Transition name="fade">
     <div
       v-if="show"
-      class="fixed inset-0 flex items-end sm:items-start justify-center px-4 py-6 pointer-events-none sm:p-6 z-50"
+      class="fixed inset-0 flex items-center justify-center px-4 py-6 pointer-events-none z-[9999]"
     >
       <div
         :class="[
           'max-w-sm w-full shadow-lg rounded-lg pointer-events-auto',
-          type === 'success' ? 'bg-green-500' : 'bg-red-500',
+          type === PopupType.SUCCESS ? 'bg-green-500' : 'bg-red-500',
         ]"
       >
         <div class="rounded-lg shadow-xs overflow-hidden">

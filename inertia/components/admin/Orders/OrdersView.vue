@@ -23,7 +23,7 @@
     <div v-if="filteredOrders.length > 0">
       <div class="grid md:(grid-cols-4 gap-3)">
         <div
-          v-for="order in filteredOrders"
+          v-for="order in paginatedOrders"
           :key="order.id"
           class="bg-background-secondary p-4 rounded-lg mb-4"
         >
@@ -121,38 +121,66 @@
     <div v-else class="text-center py-8 text-gray-400">
       Aucune commande trouvée dans cette catégorie.
     </div>
+
+    <!-- Pagination -->
+    <div v-if="totalOrders > 0" class="mt-8">
+      <Pagination
+        v-model:currentPage="currentPage"
+        :total-items="totalOrders"
+        :items-per-page="itemsPerPage"
+        item-name="commandes"
+      />
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { OrderAction, OrderStatus } from '#utils/enum'
-import { OrderType } from '#dto/order_dto'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { GetOrderDto } from '#dto/orders_interface'
+import { OrderStatus, OrderAction } from '#utils/enum'
+import Pagination from '~/components/admin/Pagination.vue'
 
 const props = defineProps<{
-  orders: OrderType[]
+  orders: GetOrderDto[]
 }>()
 
-const emit = defineEmits(['view', 'action'])
-const emitAction = (action: string, orderId: number, message: string) => {
-  emit('action', { action, message, orderId })
-  activeActionMenu.value = null
-}
+const emit = defineEmits<{
+  action: [action: OrderAction, orderId: number, message: string]
+}>()
+
+const currentOrderTab = ref('all')
+const activeActionMenu = ref<number | null>(null)
+const currentPage = ref(1)
+const itemsPerPage = ref(8)
+
 const orderTabs = [
-  { label: 'Toutes', value: 'all' },
-  { label: 'En cours', value: OrderStatus.PROCESSING },
-  { label: 'Livrées', value: OrderStatus.DELIVERED },
-  { label: 'Annulées', value: OrderStatus.CANCELLED },
+  { value: 'all', label: 'Toutes' },
+  { value: OrderStatus.PROCESSING, label: 'En cours' },
+  { value: OrderStatus.DELIVERED, label: 'Livrées' },
+  { value: OrderStatus.CANCELLED, label: 'Annulées' },
 ]
 
-const currentOrderTab = ref(orderTabs[0].value)
-const activeActionMenu = ref<number | null>(null)
-
 const filteredOrders = computed(() => {
-  if (currentOrderTab.value === 'all') {
-    return props.orders
+  let result = props.orders
+  if (currentOrderTab.value !== 'all') {
+    result = result.filter((order) => order.status === currentOrderTab.value)
   }
-  return props.orders.filter((order) => order.status === currentOrderTab.value)
+  return result
+})
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredOrders.value.slice(start, end)
+})
+
+const totalOrders = computed(() => filteredOrders.value.length)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(totalOrders.value / itemsPerPage.value)))
+
+// Réinitialiser la page quand l'onglet change
+watch(currentOrderTab, () => {
+  currentPage.value = 1
 })
 
 const formatDate = (dateString: string) => {
@@ -176,6 +204,11 @@ const toggleActionMenu = (orderId: number) => {
   } else {
     activeActionMenu.value = orderId
   }
+}
+
+const emitAction = (action: OrderAction, orderId: number, message: string) => {
+  emit('action', action, orderId, message)
+  activeActionMenu.value = null
 }
 
 // Fermer le menu si on clique en dehors

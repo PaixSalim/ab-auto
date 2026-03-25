@@ -391,6 +391,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Layout from '~/components/admin/Layout.vue'
+import PaginatedList from '~/components/admin/PaginatedList.vue'
 
 interface Seller {
   id: number
