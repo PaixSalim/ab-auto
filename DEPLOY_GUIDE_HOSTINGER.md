@@ -6,7 +6,7 @@ Ce guide explique comment mettre en place le déploiement automatique de l'appli
 
 *   **Activer l'accès SSH** : Connectez-vous à Hostinger > Avancé > Accès SSH. Assurez-vous qu'il est "Activé". Notez l'IP, l'utilisateur et le port (généralement `65002`).
 *   **Ajouter votre clé SSH** :
-    1.  Si vous n'en avez pas, générez-en une sur votre machine : `ssh-keygen -t ed25519 -C "github-actions"`.
+    1.  Si vous n'en avez pas, générez-en une sur votre machine : `ssh-keygen -t ed25519 -C "github-actions-auto-ab"`.
     2.  Copiez le contenu de `id_ed25519.pub`.
     3.  Sur Hostinger, dans "Accès SSH", collez-la dans la section "Gérer les clés SSH".
 
