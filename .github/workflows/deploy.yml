@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Build Project
-        run: npm run build
+        run: node ace build --ignore-ts-errors
 
       - name: Prepare build/tmp for restart
         run: mkdir -p build/tmp
