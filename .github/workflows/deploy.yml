@@ -47,6 +47,9 @@ jobs:
           key: ${{ secrets.HOSTINGER_AUTO_AB_SSH_KEY }}
           port: 65002
           script: |
+            # Ajouter Node.js d'Hostinger au PATH
+            export PATH=/opt/alt/alt-nodejs22/root/usr/bin:$PATH
+            
             cd ${{ secrets.HOSTINGER_DEPLOY_PATH }}
             
             # Installer les dépendances de production sur le serveur
