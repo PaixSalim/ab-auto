@@ -70,4 +70,4 @@ RUN node -e " \
 "
 
 EXPOSE 8080
-CMD ["sh", "-c", "node ace migration:run --force && node ace db:seed --files database/seeders/6user_seeder.ts && node ./bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run --force && node ace db:seed --files database/seeders/0system_setup_seeder.ts && node ace db:seed --files database/seeders/permission_seeder.ts && node ace db:seed --files database/seeders/role_seeder.ts && node ace db:seed --files database/seeders/1category_seeder.ts && node ace db:seed --files database/seeders/2brand_seeder.ts && node ace db:seed --files database/seeders/3product_seeder.ts && node ace db:seed --files database/seeders/6user_seeder.ts && node ace db:seed --files database/seeders/comment_seeder.ts && node ./bin/server.js"]
