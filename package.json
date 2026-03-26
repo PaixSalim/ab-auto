@@ -51,6 +51,7 @@
     "@unocss/preset-icons": "^66.1.0-beta.3",
     "@unocss/reset": "^66.6.7",
     "@vitejs/plugin-vue": "^5.2.1",
+    "better-sqlite3": "^12.8.0",
     "eslint": "^9.20.1",
     "hot-hook": "^0.4.0",
     "pino-pretty": "^13.0.0",

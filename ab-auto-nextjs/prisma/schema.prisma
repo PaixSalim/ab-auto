@@ -1,0 +1,182 @@
+// Prisma Schema - Remplacement du modèle AdonisJS
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Utilisateurs
+model User {
+  id                Int       @id @default(autoincrement())
+  fullName          String?   @map("full_name")
+  email             String?   @unique
+  phone             String?   @unique
+  city              String?
+  registrationNumber String? @map("registration_number")
+  country           String?
+  companyName       String?   @map("company_name")
+  neighborhood      String?
+  isValidated       Boolean   @default(false) @map("is_validated")
+  role              UserStatus @default(CUSTOMER)
+  password          String
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  products          Product[]
+  comments          Comment[]
+  orders            Order[] @relation("CustomerOrders")
+  sellerOrders      Order[] @relation("SellerOrders")
+
+  @@map("users")
+}
+
+// Rôles (simplifié avec enum)
+enum UserStatus {
+  CUSTOMER
+  SELLER
+  ADMIN
+  SUPERADMIN
+}
+
+// Catégories
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  image       String?
+  slug        String    @unique
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  products    Product[]
+  brands      Brand[]
+
+  @@map("categories")
+}
+
+// Marques
+model Brand {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  logo        String?
+  slug        String    @unique
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  products    Product[]
+  categories  Category[]
+
+  @@map("brands")
+}
+
+// Produits
+model Product {
+  id               Int       @id @default(autoincrement())
+  title            String
+  description      String
+  price            Float
+  images           String[]  // JSON array
+  stock            Int       @default(0)
+  reference        String    @unique
+  validationStatus ValidationStatus @default(PENDING) @map("validation_status")
+  sellerId         Int       @map("seller_id")
+  categoryId       Int       @map("category_id")
+  brandId          Int       @map("brand_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  seller           User       @relation(fields: [sellerId], references: [id])
+  category         Category   @relation(fields: [categoryId], references: [id])
+  brand            Brand      @relation(fields: [brandId], references: [id])
+  comments         Comment[]
+  orders           Order[]
+
+  @@map("products")
+}
+
+// Statuts de validation
+enum ValidationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Commentaires
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  rating    Int       @default(5)
+  userId    Int       @map("user_id")
+  productId Int       @map("product_id")
+  status    CommentStatus @default(PENDING)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@map("comments")
+}
+
+// Statuts de commentaire
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Commandes
+model Order {
+  id         Int       @id @default(autoincrement())
+  quantity   Int
+  totalPrice Float     @map("total_price")
+  status     OrderStatus @default(PENDING)
+  customerId Int       @map("customer_id")
+  productId  Int       @map("product_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  customer   User      @relation("CustomerOrders", fields: [customerId], references: [id])
+  seller     User      @relation("SellerOrders", fields: [productId], references: [id])
+  product    Product   @relation(fields: [productId], references: [id])
+
+  @@map("orders")
+}
+
+// Statuts de commande
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// Promotions
+model Promotion {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  discount    Float     // Pourcentage de réduction
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  productId   Int?      @map("product_id")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  product     Product?  @relation(fields: [productId], references: [id])
+
+  @@map("promotions")
+}
