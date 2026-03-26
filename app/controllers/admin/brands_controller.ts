@@ -1,9 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Brand from '#models/brand'
 import { cuid } from '@adonisjs/core/helpers'
-import drive from '@adonisjs/drive/services/main'
+
 import env from '#start/env'
 import { generateSlug } from '#utils/slug_utils'
+import { getImageUrl } from '#utils/image_url_utils'
 
 export default class AdminBrandsController {
   /**
@@ -19,14 +20,11 @@ export default class AdminBrandsController {
       url: b.url
     })))
 
-    // Formatter les URLs pour les images locales
-    const formattedBrands = brands.map(brand => {
-      const brandJson = brand.toJSON()
-      return {
-        ...brandJson,
-        url: this.formatImageUrl(brand.url)
-      }
-    })
+    // Formatter les URLs pour les images locales avec URLs signées
+    const formattedBrands = await Promise.all(brands.map(async brand => ({
+      ...brand.toJSON(),
+      url: await getImageUrl(brand.url, '/uploads/brands/default-brand.jpg')
+    })))
 
     console.log('🔍 Formatted brands for frontend:', formattedBrands.map((b, index) => {
       const originalBrand = brands[index]
@@ -73,7 +71,7 @@ export default class AdminBrandsController {
       console.log('- Generated filename:', fileName)
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -87,7 +85,7 @@ export default class AdminBrandsController {
           console.log('- Local URL constructed manually:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).fileName
           console.log('- Drive returned URL:', uploadedUrl)
         }
         
@@ -157,8 +155,14 @@ export default class AdminBrandsController {
       return inertia.location('/dashboard/brands')
     }
 
+    // Générer l'URL signée pour l'affichage
+    const brandWithUrl = {
+      ...brand.toJSON(),
+      url: await getImageUrl(brand.url, '/uploads/brands/default-brand.jpg')
+    }
+
     return inertia.render('admin/brands/edit', {
-      brand: brand.toJSON()
+      brand: brandWithUrl
     })
   }
 
@@ -186,7 +190,7 @@ export default class AdminBrandsController {
       const fileName: string = `brands/${generateSlug(name)}-${cuid()}.${file.extname}`
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -200,7 +204,7 @@ export default class AdminBrandsController {
           console.log('- Local URL constructed manually:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).fileName
           console.log('- Drive returned URL:', uploadedUrl)
         }
         

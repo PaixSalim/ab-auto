@@ -22,7 +22,7 @@ export class PromotionService {
       console.log('📝 Generated filename:', fileName)
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('💾 Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -36,7 +36,7 @@ export class PromotionService {
           console.log('� Local URL constructed manually:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
           console.log('� Drive returned URL:', uploadedUrl)
         }
         
@@ -85,7 +85,7 @@ export class PromotionService {
       
       try {
         // Utiliser le disque approprié selon l'environnement
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         await file.moveToDisk(fileName, disk)
         
         let uploadedUrl: string
@@ -96,7 +96,7 @@ export class PromotionService {
           console.log('Local disk URL constructed manually for edit:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
         }
         
         imageUrl = uploadedUrl

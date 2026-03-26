@@ -74,9 +74,9 @@ export default class SellerCategoriesController {
         const fileName: string = `categories/${generateSlug(data.name)}-${cuid()}.${file.extname}`
         
         try {
-          const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+          const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
           await file.moveToDisk(fileName, disk)
-          let uploadedUrl = await drive.use(disk).getUrl(fileName)
+          let uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
           
           if (disk === 'local' && !uploadedUrl.startsWith('/')) {
             uploadedUrl = '/uploads/' + uploadedUrl
@@ -137,9 +137,9 @@ export default class SellerCategoriesController {
         const fileName: string = `categories/${generateSlug(data.name)}-${cuid()}.${file.extname}`
         
         try {
-          const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+          const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
           await file.moveToDisk(fileName, disk)
-          let uploadedUrl = await drive.use(disk).getUrl(fileName)
+          let uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
           
           if (disk === 'local' && !uploadedUrl.startsWith('/')) {
             uploadedUrl = '/uploads/' + uploadedUrl

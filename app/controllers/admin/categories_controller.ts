@@ -97,7 +97,7 @@ export default class AdminCategoriesController {
       console.log('- Generated filename:', fileName)
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -111,7 +111,7 @@ export default class AdminCategoriesController {
           console.log('- Local URL constructed manually:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
           console.log('- Drive returned URL:', uploadedUrl)
         }
         
@@ -180,7 +180,7 @@ export default class AdminCategoriesController {
       const fileName: string = `categories/${generateSlug(name)}-${cuid()}.${file.extname}`
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -194,7 +194,7 @@ export default class AdminCategoriesController {
           console.log('- Local URL constructed manually:', uploadedUrl)
         } else {
           // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
+          uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
           console.log('- Drive returned URL:', uploadedUrl)
         }
         

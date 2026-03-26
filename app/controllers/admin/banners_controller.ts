@@ -4,6 +4,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
 import env from '#start/env'
 import { generateSlug } from '#utils/slug_utils'
+import { getImageUrl } from '#utils/image_url_utils'
 
 export default class AdminBannersController {
   /**
@@ -19,14 +20,11 @@ export default class AdminBannersController {
       image: b.image
     })))
 
-    // Formatter les URLs pour les images locales
-    const formattedBanners = banners.map(banner => {
-      const bannerJson = banner.toJSON()
-      return {
-        ...bannerJson,
-        image: this.formatImageUrl(banner.image)
-      }
-    })
+    // Formatter les URLs pour les images locales avec URLs signées
+    const formattedBanners = await Promise.all(banners.map(async banner => ({
+      ...banner.toJSON(),
+      image: await getImageUrl(banner.image, '/uploads/banners/default-banner.jpg')
+    })))
 
     console.log('🔍 Formatted banners for frontend:', formattedBanners.map((b, index) => {
       const originalBanner = banners[index]
@@ -64,7 +62,7 @@ export default class AdminBannersController {
     console.log('- File has tmpPath?', file?.tmpPath)
     console.log('- File size:', file?.size)
 
-    let imageUrl = '/uploads/banners/default-banner.jpg'
+    let imageUrl = 'banners/default-banner.jpg'
 
     // Traiter l'upload d'image si fourni
     if (file && file.tmpPath) {
@@ -73,26 +71,21 @@ export default class AdminBannersController {
       console.log('- Generated filename:', fileName)
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
         console.log('✅ File moved to disk')
         
-        let uploadedUrl: string
-        
         if (disk === 'local') {
           // Pour le disque local, construire l'URL manuellement
-          uploadedUrl = '/uploads/' + fileName
-          console.log('- Local URL constructed manually:', uploadedUrl)
+          imageUrl = '/uploads/' + fileName
+          console.log('- Local URL constructed manually:', imageUrl)
         } else {
-          // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
-          console.log('- Drive returned URL:', uploadedUrl)
+          // Pour S3, sauvegarder seulement le chemin (pas l'URL signée)
+          imageUrl = fileName
+          console.log('- S3 path saved:', imageUrl)
         }
-        
-        imageUrl = uploadedUrl
-        console.log('✅ Final image URL:', imageUrl)
       } catch (error) {
         console.error('❌ Erreur lors de l\'upload de l\'image de bannière:', error)
       }
@@ -155,8 +148,14 @@ export default class AdminBannersController {
       return inertia.location('/dashboard/banners')
     }
 
+    // Générer l'URL signée pour l'affichage
+    const bannerWithUrl = {
+      ...banner.toJSON(),
+      image: await getImageUrl(banner.image, '/uploads/banners/default-banner.jpg')
+    }
+
     return inertia.render('admin/banners/edit', {
-      banner: banner.toJSON()
+      banner: bannerWithUrl
     })
   }
 
@@ -184,7 +183,7 @@ export default class AdminBannersController {
       const fileName: string = `banners/${generateSlug(title)}-${cuid()}.${file.extname}`
       
       try {
-        const disk = env.get('NODE_ENV') === 'production' ? 'r2' : 'local'
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
         console.log('- Using disk:', disk)
         
         await file.moveToDisk(fileName, disk)
@@ -197,9 +196,9 @@ export default class AdminBannersController {
           uploadedUrl = '/uploads/' + fileName
           console.log('- Local URL constructed manually:', uploadedUrl)
         } else {
-          // Pour R2, utiliser la méthode getUrl
-          uploadedUrl = await drive.use(disk).getUrl(fileName)
-          console.log('- Drive returned URL:', uploadedUrl)
+          // Pour S3, sauvegarder seulement le chemin (pas l'URL signée)
+          uploadedUrl = fileName
+          console.log('- S3 path saved:', uploadedUrl)
         }
         
         imageUrl = uploadedUrl
@@ -277,26 +276,5 @@ export default class AdminBannersController {
       return response.redirect().back()
     }
   }
-
-  /**
-   * Formatter les URLs d'images
-   */
-  private formatImageUrl(url: string | null): string {
-    if (!url) {
-      return '/uploads/banners/default-banner.jpg'
-    }
-    
-    // Si c'est déjà une URL locale, la retourner
-    if (url.startsWith('/uploads/')) {
-      return url
-    }
-    
-    // Si c'est une URL externe, la remplacer par l'image par défaut locale
-    if (url.startsWith('http')) {
-      return '/uploads/banners/default-banner.jpg'
-    }
-    
-    // Sinon, considérer que c'est un chemin local
-    return url.startsWith('/') ? url : '/' + url
-  }
-}
+}  
+ 
