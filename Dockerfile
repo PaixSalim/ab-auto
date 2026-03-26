@@ -12,7 +12,6 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
-RUN npm install sqlite3 --save-optional 2>/dev/null || true
 
 # Build stage
 FROM base AS build
@@ -22,10 +21,16 @@ ADD . .
 RUN npm run build
 
 # Production stage
+# Production stage
 FROM base
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
+
+# Créer un stub pour le dialecte sqlite3 manquant
+RUN mkdir -p /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
+    echo "module.exports = {}" > /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
+
 EXPOSE 8080
 CMD ["node", "./bin/server.js"]
