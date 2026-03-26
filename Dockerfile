@@ -12,7 +12,6 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
-RUN echo "'use strict'; const K = require('knex/lib/dialects/sqlite3'); module.exports = class LibSQLClient extends K { _driver() { return {}; } };" > node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs
 
 # Build stage
 FROM base AS build
