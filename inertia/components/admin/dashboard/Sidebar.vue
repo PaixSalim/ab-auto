@@ -56,6 +56,7 @@ const navigation = computed(() => {
       ...(can('validate_products') ? [{ label: 'Validation Articles', route: '/dashboard/validation', icon: 'i-mdi-check-circle-outline' }] : []),
       ...(can('view_promotions') || can('manage_promotions') ? [{ label: 'Promotions', route: '/dashboard/promotions', icon: 'i-mdi-tag-outline' }] : []),
       ...(can('view_brands') || can('manage_brands') ? [{ label: 'Marques', route: '/dashboard/brands', icon: 'i-mdi-truck-outline' }] : []),
+      { label: 'Bannières', route: '/dashboard/banners', icon: 'i-mdi-image-outline' },
     ]
 
     const adminItems = [

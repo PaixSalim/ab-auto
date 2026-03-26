@@ -1,0 +1,10 @@
+<!-- Image par défaut pour les bannières -->
+<svg width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="400" fill="#f3f4f6"/>
+  <text x="600" y="180" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#6b7280">
+    Bannière par défaut
+  </text>
+  <text x="600" y="220" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#9ca3af">
+    Auto-pro
+  </text>
+</svg>

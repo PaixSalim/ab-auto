@@ -29,6 +29,7 @@ const CustomerController = () => import('#controllers/customer_controller')
 const DashboardController = () => import('#controllers/dashboard_controller')
 const AdminCategoriesController = () => import('#controllers/admin/categories_controller')
 const AdminBrandsController = () => import('#controllers/admin/brands_controller')
+const AdminBannersController = () => import('#controllers/admin/banners_controller')
 const ProductValidationController = () => import('#controllers/admin/product_validation_controller')
 const PermissionsController = () => import('#controllers/admin/permissions_controller')
 const CheckDbStatusesController = () => import('#controllers/check_db_statuses_controller')
@@ -115,6 +116,19 @@ router
       })
       .prefix('brands')
       .as('brands')
+
+    // Gestion des bannières
+    router
+      .group(() => {
+        router.get('/', [AdminBannersController, 'index']).as('index')
+        router.get('create', [AdminBannersController, 'create']).as('create')
+        router.post('create', [AdminBannersController, 'store']).as('store')
+        router.get('edit/:id', [AdminBannersController, 'edit']).as('edit')
+        router.post('edit/:id', [AdminBannersController, 'update']).as('update')
+        router.delete('delete/:id', [AdminBannersController, 'destroy']).as('delete')
+      })
+      .prefix('banners')
+      .as('banners')
 
     router
       .group(() => {
