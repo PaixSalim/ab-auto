@@ -1,4 +1,5 @@
 FROM node:22-alpine AS base
+RUN apk add --no-cache python3 make g++
 
 # All deps stage
 FROM base AS deps
@@ -11,6 +12,7 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
+RUN npm rebuild better-sqlite3
 
 # Build stage
 FROM base AS build
