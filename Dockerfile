@@ -21,16 +21,18 @@ ADD . .
 RUN npm run build
 
 # Production stage
-# Production stage
 FROM base
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 
-# Créer un stub pour le dialecte sqlite3 manquant
-RUN mkdir -p /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
-    echo "module.exports = {}" > /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
+# Neutraliser les clients SQLite que lucid charge inconditionnellement
+RUN printf 'Object.defineProperty(exports, "__esModule", { value: true });\nexports.default = class LibSQLClient {};\n' \
+    > /app/node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs && \
+    mkdir -p /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
+    echo "module.exports = {}" \
+    > /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
 
 EXPOSE 8080
 CMD ["node", "./bin/server.js"]
