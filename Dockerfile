@@ -12,8 +12,8 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
-RUN npm rebuild better-sqlite3 || true
-RUN npm rebuild sqlite3 || true
+RUN mkdir -p node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
+    echo "module.exports = {}" > node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
 
 # Build stage
 FROM base AS build
@@ -30,10 +30,3 @@ COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 EXPOSE 8080
 CMD ["node", "./bin/server.js"]
-# Production only deps stage
-FROM base AS production-deps
-WORKDIR /app
-ADD package.json package-lock.json ./
-RUN npm ci --omit=dev
-RUN mkdir -p node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
-    echo "module.exports = {}" > node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
