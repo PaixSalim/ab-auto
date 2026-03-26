@@ -12,7 +12,8 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
-RUN npm rebuild better-sqlite3
+RUN npm rebuild better-sqlite3 || true
+RUN npm rebuild sqlite3 || true
 
 # Build stage
 FROM base AS build
