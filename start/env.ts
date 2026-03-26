@@ -24,29 +24,40 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
-  GEMINI_API_KEY: Env.schema.string(),
+  // GEMINI_API_KEY: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
   | Variables for configuring the drive package
   |----------------------------------------------------------
   */
-  DRIVE_DISK: Env.schema.enum(['r2'] as const),
-  R2_KEY: Env.schema.string(),
-  R2_SECRET: Env.schema.string(),
-  R2_BUCKET: Env.schema.string(),
-  R2_ENDPOINT: Env.schema.string(),
+  // DRIVE_DISK: Env.schema.enum(['r2'] as const),
+  // R2_KEY: Env.schema.string(),
+  // R2_SECRET: Env.schema.string(),
+  // R2_BUCKET: Env.schema.string(),
+  // R2_ENDPOINT: Env.schema.string(),
+GEMINI_API_KEY: Env.schema.string.optional(),
+DRIVE_DISK: Env.schema.string.optional(),
+R2_KEY: Env.schema.string.optional(),
+R2_SECRET: Env.schema.string.optional(),
+R2_BUCKET: Env.schema.string.optional(),
+R2_ENDPOINT: Env.schema.string.optional(),
+SMTP_HOST: Env.schema.string.optional(),
+SMTP_PORT: Env.schema.number.optional(),
+MAIL_FROM_ADDRESS: Env.schema.string.optional(),
+MAIL_TO_ADDRESS: Env.schema.string.optional(),
+MAIL_TO_ADDRESS1: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
   | Variables for configuring the mail package
   |----------------------------------------------------------
   */
-  SMTP_HOST: Env.schema.string(),
-  SMTP_PORT: Env.schema.string(),
-  MAIL_FROM_ADDRESS: Env.schema.string(),
-  MAIL_TO_ADDRESS: Env.schema.string(),
-  MAIL_TO_ADDRESS1: Env.schema.string(),
+  // SMTP_HOST: Env.schema.string(),
+  // SMTP_PORT: Env.schema.string(),
+  // MAIL_FROM_ADDRESS: Env.schema.string(),
+  // MAIL_TO_ADDRESS: Env.schema.string(),
+  // MAIL_TO_ADDRESS1: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
