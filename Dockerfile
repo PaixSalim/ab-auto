@@ -12,6 +12,7 @@ FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
+RUN npm install sqlite3 --save-optional 2>/dev/null || true
 
 # Build stage
 FROM base AS build
