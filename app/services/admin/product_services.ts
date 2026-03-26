@@ -3,6 +3,8 @@ import { generateSlug } from '#utils/slug_utils'
 import Product from '#models/product'
 import { MediaType } from '#dto/products_interface'
 import { EditType } from '#dto/edit_type'
+import { cuid } from '@adonisjs/core/helpers'
+import env from '#start/env'
 
 export class ProductServices {
   async createProducts(payload: any) {
@@ -69,14 +71,12 @@ export class ProductServices {
         const fileName = `${timestamp}-${file.clientName}`
         
         try {
-          // Utiliser la même méthode que le seller
-          await file.move('public/uploads/products', {
-            name: fileName,
-            overwrite: true
-          })
+          // Utiliser moveToDisk avec support S3/local
+          const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
+          await file.moveToDisk(fileName, disk)
           
-          // Construire l'URL locale
-          url = `/uploads/products/${fileName}`
+          // Construire l'URL selon le disque utilisé
+          url = disk === 'local' ? '/uploads/' + fileName : fileName
           console.log('✅ Product image uploaded:', url)
         } catch (error) {
           console.error('Erreur lors de l\'enregistrement du fichier :', error)

@@ -10,6 +10,7 @@ import Banner from '#models/banner'
 import Partner from '#models/partner'
 import { capitalize } from '#utils/capitalyze_utils'
 import { getMediaUrlsFor } from '#utils/get_medias_url_array'
+import { getImageUrl } from '#utils/image_url_utils'
 
 export class StoreService {
   async getOneProduct(id: number) {
@@ -196,18 +197,26 @@ export class StoreService {
     // Charger toutes les marques une seule fois
     const brands = await Brand.all()
 
-    return filteredCategories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      url: category.url,
-      items: category.$extras.items,
-      brands: brands
-        .filter((brand) => brandsByCategory.get(category.id)?.has(brand.id))
-        .map((brand) => ({
-          id: brand.id,
-          name: brand.name,
-          url: brand.url,
-        })),
+    // Utiliser Promise.all pour générer les URLs signées
+    return await Promise.all(filteredCategories.map(async (category) => {
+      // Générer l'URL signée pour la catégorie
+      const categoryImageUrl = await getImageUrl(category.url, '/uploads/categories/default-category.jpg')
+      
+      // Générer les URLs signées pour les marques de cette catégorie
+      const categoryBrands = brands.filter((brand) => brandsByCategory.get(category.id)?.has(brand.id))
+      const brandsWithUrls = await Promise.all(categoryBrands.map(async (brand) => ({
+        id: brand.id,
+        name: brand.name,
+        url: await getImageUrl(brand.url, '/uploads/brands/default-brand.jpg'),
+      })))
+
+      return {
+        id: category.id,
+        name: category.name,
+        url: categoryImageUrl,
+        items: category.$extras.items,
+        brands: brandsWithUrls,
+      }
     }))
   }
 
@@ -229,7 +238,13 @@ export class StoreService {
     )
   }
   async getBrands() {
-    return Brand.query().select('id', 'name', 'url').has('products')
+    const brands = await Brand.query().select('id', 'name', 'url').has('products')
+    
+    // Utiliser Promise.all pour générer les URLs signées
+    return await Promise.all(brands.map(async (brand) => ({
+      ...brand.toJSON(),
+      url: await getImageUrl(brand.url, '/uploads/brands/default-brand.jpg')
+    })))
   }
 
   async getPromotedProducts() {
@@ -259,22 +274,10 @@ export class StoreService {
 
     console.log('Found all promotions (no date filter):', promotedProducts.length)
     
-    return promotedProducts.map((promotion) => {
-      let imageUrl = promotion.url || null
-      
-      // CORRECTION : Remplacer toutes les URLs externes par l'image par défaut locale
-      if (imageUrl) {
-        if (imageUrl.startsWith('https://auto-cdn.uvatis.com/') || 
-            imageUrl.startsWith('https://cdn.autodoc.de/')) {
-          console.log('🔄 Replacing external URL with local default:', imageUrl)
-          imageUrl = '/uploads/products/default-product.jpg'
-        }
-      }
-      
-      // Pour les fichiers locaux, s'assurer que l'URL commence par /
-      if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
-        imageUrl = '/' + imageUrl
-      }
+    // Utiliser Promise.all pour générer les URLs signées
+    return await Promise.all(promotedProducts.map(async (promotion) => {
+      // Utiliser getImageUrl pour générer l'URL signée
+      const imageUrl = await getImageUrl(promotion.url, '/uploads/products/default-product.jpg')
       
       console.log('🔍 PROMOTION DEBUG:', {
         promotionId: promotion.$extras.promotion_id,
@@ -291,7 +294,7 @@ export class StoreService {
         id: promotion.id,
         name: promotion.$extras.name,
         slug: promotion.$extras.slug,
-        url: imageUrl, // URL corrigée
+        url: imageUrl, // URL signée générée
         originalPrice: promotion.$extras.original_price,
         discountPercent: promotion.discountPercent,
         promoPrice:
@@ -299,15 +302,27 @@ export class StoreService {
           (promotion.$extras.original_price * promotion.discountPercent) / 100,
         category: promotion.$extras.category_name,
       }
-    })
+    }))
   }
 
   async getBanners() {
-    return Banner.query().select('id', 'title', 'description', 'image', 'link')
+    const banners = await Banner.query().select('id', 'title', 'description', 'image', 'link')
+    
+    // Utiliser Promise.all pour générer les URLs signées
+    return await Promise.all(banners.map(async (banner) => ({
+      ...banner.toJSON(),
+      image: await getImageUrl(banner.image, '/uploads/banners/default-banner.jpg')
+    })))
   }
 
   async getPartners() {
-    return Partner.query().select('id', 'image', 'label')
+    const partners = await Partner.query().select('id', 'image', 'label')
+    
+    // Utiliser Promise.all pour générer les URLs signées
+    return await Promise.all(partners.map(async (partner) => ({
+      ...partner.toJSON(),
+      image: await getImageUrl(partner.image, '/uploads/partners/default-partner.jpg')
+    })))
   }
 
   async getCategoryTree() {

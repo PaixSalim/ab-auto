@@ -6,13 +6,11 @@ import Order from '#models/order'
 import { OrderStatus } from '#utils/enum'
 import { MediaType } from '#dto/products_interface'
 import { ValidationStatus } from '#dto/products_interface'
+import { cuid } from '@adonisjs/core/helpers'
+import env from '#start/env'
 
 export default class SellerProductsController {
-  /**
-   * Dashboard vendeur avec statistiques
-   */
   async dashboard({ inertia, auth }: HttpContext) {
-    // Statistiques pour le dashboard
     const productsCount = await Product.query().where('seller_id', auth.user!.id).count('* as total')
     const ordersCount = await Order.query()
       .whereHas('product', (q) => q.where('seller_id', auth.user!.id))
@@ -20,22 +18,17 @@ export default class SellerProductsController {
     const commentsCount = await Product.query()
       .where('seller_id', auth.user!.id)
       .preload('comments')
-      .then(products => {
-        return products.reduce((total, product) => total + (product.comments?.length || 0), 0)
-      })
+      .then(products => products.reduce((total, product) => total + (product.comments?.length || 0), 0))
 
-    const stats = {
-      products: Number(productsCount[0].$extras.total),
-      orders: Number(ordersCount[0].$extras.total),
-      comments: commentsCount,
-    }
-
-    return inertia.render('seller/dashboard', { stats })
+    return inertia.render('seller/dashboard', {
+      stats: {
+        products: Number(productsCount[0].$extras.total),
+        orders: Number(ordersCount[0].$extras.total),
+        comments: commentsCount,
+      }
+    })
   }
 
-  /**
-   * Dashboard vendeur avec ses produits
-   */
   async index({ inertia, auth }: HttpContext) {
     const products = await Product.query()
       .where('seller_id', auth.user!.id)
@@ -50,9 +43,6 @@ export default class SellerProductsController {
     return inertia.render('seller/products/index', { products, categories, brands })
   }
 
-  /**
-   * Commandes sur les produits du vendeur
-   */
   async orders({ inertia, auth }: HttpContext) {
     const orders = await Order.query()
       .whereHas('product', (q) => q.where('seller_id', auth.user!.id))
@@ -62,9 +52,6 @@ export default class SellerProductsController {
     return inertia.render('seller/orders/index', { orders })
   }
 
-  /**
-   * Voir les commentaires sur les produits du vendeur
-   */
   async comments({ inertia, auth }: HttpContext) {
     const products = await Product.query()
       .where('seller_id', auth.user!.id)
@@ -77,43 +64,28 @@ export default class SellerProductsController {
     return inertia.render('seller/comments/index', { products })
   }
 
-  /**
-   * Activer/Désactiver un commentaire
-   */
   async toggleCommentStatus({ request, response, session }: HttpContext) {
     const { commentId } = request.only(['commentId'])
-
     try {
       const Comment = (await import('#models/comment')).default
       const comment = await Comment.findOrFail(commentId)
       comment.isActive = !comment.isActive
       await comment.save()
-
       session.flash('notification', {
         type: 'success',
         message: comment.isActive ? 'Commentaire activé avec succès' : 'Commentaire désactivé avec succès'
       })
-
-      return response.redirect().back()
-    } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la modification du commentaire'
-      })
-      return response.redirect().back()
+    } catch {
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la modification du commentaire' })
     }
+    return response.redirect().back()
   }
 
-  /**
-   * Répondre à un commentaire
-   */
   async replyComment({ request, response, auth, session }: HttpContext) {
     const { commentId, comment } = request.only(['commentId', 'comment'])
-
     try {
       const Comment = (await import('#models/comment')).default
       const parentComment = await Comment.findOrFail(commentId)
-
       await Comment.create({
         productId: parentComment.productId,
         userId: auth.user!.id,
@@ -123,51 +95,28 @@ export default class SellerProductsController {
         isActive: true,
         ip: request.ip(),
       })
-
-      session.flash('notification', {
-        type: 'success',
-        message: 'Réponse ajoutée avec succès'
-      })
-
-      return response.redirect().back()
-    } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la réponse'
-      })
-      return response.redirect().back()
+      session.flash('notification', { type: 'success', message: 'Réponse ajoutée avec succès' })
+    } catch {
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la réponse' })
     }
+    return response.redirect().back()
   }
 
-  /**
-   * Créer un produit
-   */
   async create({ request, response, auth, session }: HttpContext) {
-    const data = request.only([
-      'name',
-      'description',
-      'price',
-      'categoryId',
-      'brandId',
-      'state',
-      'warranty',
-      'features',
-    ])
+    const data = request.only(['name', 'description', 'price', 'categoryId', 'brandId', 'state', 'warranty', 'features'])
 
     try {
-      // Convertir features en tableau si c'est une chaîne
       let features = data.features
       if (typeof features === 'string') {
         features = features.split(',').map((f: string) => f.trim())
       }
 
-      // Créer le produit d'abord
       const product = await Product.create({
         name: data.name,
         description: data.description,
         price: Number(data.price),
         categoryId: Number(data.categoryId),
-        brandId: data.brandId ? Number(data.brandId) : undefined, // Rendre brandId optionnel
+        brandId: data.brandId ? Number(data.brandId) : undefined,
         state: data.state || 'new',
         warranty: data.warranty || '1 mois',
         features: features || [],
@@ -177,26 +126,19 @@ export default class SellerProductsController {
         validationStatus: ValidationStatus.PENDING,
       })
 
-      // Gérer les images si elles existent
-      if (request.files('images')) {
-        const images = request.files('images')
-        
-        for (let i = 0; i < images.length; i++) {
-          const image = images[i]
+      // ✅ Upload vers S3/local selon l'environnement
+      const images = request.files('images')
+      if (images && images.length > 0) {
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
+
+        for (const image of images) {
           if (image && image.tmpPath) {
-            // Créer le nom de fichier unique
-            const timestamp = Date.now()
-            const fileName = `${timestamp}-${image.clientName}`
-            
-            // Déplacer le fichier vers le dossier uploads
-            await image.move('public/uploads/products', {
-              name: fileName,
-              overwrite: true
-            })
-            
-            // Créer le média pour le produit
+            const fileName = `products/${cuid()}-${image.clientName}`
+            await image.moveToDisk(fileName, disk)
+            const mediaUrl = disk === 'local' ? '/uploads/' + fileName : fileName
+
             await product.related('medias').create({
-              url: `/uploads/products/${fileName}`,
+              url: mediaUrl,
               type: MediaType.IMAGE,
               productId: product.id
             })
@@ -204,36 +146,17 @@ export default class SellerProductsController {
         }
       }
 
-      session.flash('notification', {
-        type: 'success',
-        message: 'Produit créé avec succès'
-      })
-
-      return response.redirect().back()
+      session.flash('notification', { type: 'success', message: 'Produit créé avec succès' })
     } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la création du produit'
-      })
-      return response.redirect().back()
+      console.error('❌ Error creating product:', error)
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la création du produit' })
     }
+
+    return response.redirect().back()
   }
 
-  /**
-   * Modifier un produit
-   */
   async edit({ request, response, auth, session }: HttpContext) {
-    const { id, ...data } = request.only([
-      'id',
-      'name',
-      'description',
-      'price',
-      'categoryId',
-      'brandId',
-      'state',
-      'warranty',
-      'features',
-    ])
+    const { id, ...data } = request.only(['id', 'name', 'description', 'price', 'categoryId', 'brandId', 'state', 'warranty', 'features'])
 
     try {
       const product = await Product.query()
@@ -244,26 +167,19 @@ export default class SellerProductsController {
       product.merge(data)
       await product.save()
 
-      // Gérer les images si elles existent
-      if (request.files('images')) {
-        const images = request.files('images')
-        
-        for (let i = 0; i < images.length; i++) {
-          const image = images[i]
+      // ✅ Upload vers S3/local selon l'environnement
+      const images = request.files('images')
+      if (images && images.length > 0) {
+        const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
+
+        for (const image of images) {
           if (image && image.tmpPath) {
-            // Créer le nom de fichier unique
-            const timestamp = Date.now()
-            const fileName = `${timestamp}-${image.clientName}`
-            
-            // Déplacer le fichier vers le dossier uploads
-            await image.move('public/uploads/products', {
-              name: fileName,
-              overwrite: true
-            })
-            
-            // Créer le média pour le produit
+            const fileName = `products/${cuid()}-${image.clientName}`
+            await image.moveToDisk(fileName, disk)
+            const mediaUrl = disk === 'local' ? '/uploads/' + fileName : fileName
+
             await product.related('medias').create({
-              url: `/uploads/products/${fileName}`,
+              url: mediaUrl,
               type: MediaType.IMAGE,
               productId: product.id
             })
@@ -271,107 +187,56 @@ export default class SellerProductsController {
         }
       }
 
-      session.flash('notification', {
-        type: 'success',
-        message: 'Produit modifié avec succès'
-      })
-
-      return response.redirect().back()
+      session.flash('notification', { type: 'success', message: 'Produit modifié avec succès' })
     } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la modification du produit'
-      })
-      return response.redirect().back()
+      console.error('❌ Error updating product:', error)
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la modification du produit' })
     }
+
+    return response.redirect().back()
   }
 
-  /**
-   * Annuler une commande
-   */
   async cancelOrder({ request, response, auth, session }: HttpContext) {
     const { orderId } = request.only(['orderId'])
-
     try {
       const order = await Order.query()
         .whereHas('product', (q) => q.where('seller_id', auth.user!.id))
         .where('id', orderId)
         .firstOrFail()
-
-      await order.merge({
-        status: OrderStatus.CANCELLED,
-      }).save()
-
-      session.flash('notification', {
-        type: 'success',
-        message: 'Commande annulée avec succès'
-      })
-
-      return response.redirect().back()
-    } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de l\'annulation de la commande'
-      })
-      return response.redirect().back()
+      await order.merge({ status: OrderStatus.CANCELLED }).save()
+      session.flash('notification', { type: 'success', message: 'Commande annulée avec succès' })
+    } catch {
+      session.flash('notification', { type: 'error', message: 'Erreur lors de l\'annulation de la commande' })
     }
+    return response.redirect().back()
   }
 
-  /**
-   * Marquer une commande comme livrée
-   */
   async deliveredOrder({ request, response, auth, session }: HttpContext) {
     const { orderId } = request.only(['orderId'])
-
     try {
       const order = await Order.query()
         .whereHas('product', (q) => q.where('seller_id', auth.user!.id))
         .where('id', orderId)
         .firstOrFail()
-
-      await order.merge({
-        status: OrderStatus.DELIVERED,
-      }).save()
-
-      session.flash('notification', {
-        type: 'success',
-        message: 'Commande marquée comme livrée avec succès'
-      })
-
-      return response.redirect().back()
-    } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la mise à jour de la commande'
-      })
-      return response.redirect().back()
+      await order.merge({ status: OrderStatus.DELIVERED }).save()
+      session.flash('notification', { type: 'success', message: 'Commande marquée comme livrée avec succès' })
+    } catch {
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la mise à jour de la commande' })
     }
+    return response.redirect().back()
   }
 
-  /**
-   * Supprimer un produit
-   */
   async delete({ params, response, auth, session }: HttpContext) {
     try {
       const product = await Product.query()
         .where('id', params.id)
         .where('seller_id', auth.user!.id)
         .firstOrFail()
-
       await product.delete()
-
-      session.flash('notification', {
-        type: 'success',
-        message: 'Produit supprimé avec succès'
-      })
-
-      return response.redirect().back()
-    } catch (error) {
-      session.flash('notification', {
-        type: 'error',
-        message: 'Erreur lors de la suppression du produit'
-      })
-      return response.redirect().back()
+      session.flash('notification', { type: 'success', message: 'Produit supprimé avec succès' })
+    } catch {
+      session.flash('notification', { type: 'error', message: 'Erreur lors de la suppression du produit' })
     }
+    return response.redirect().back()
   }
 }

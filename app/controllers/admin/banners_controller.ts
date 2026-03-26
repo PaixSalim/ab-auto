@@ -276,5 +276,6 @@ export default class AdminBannersController {
       return response.redirect().back()
     }
   }
-}  
+} 
+ 
  

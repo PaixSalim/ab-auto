@@ -2,9 +2,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Category from '#models/category'
 import vine from '@vinejs/vine'
 import { cuid } from '@adonisjs/core/helpers'
-import drive from '@adonisjs/drive/services/main'
 import env from '#start/env'
 import { generateSlug } from '#utils/slug_utils'
+import { getImageUrl } from '#utils/image_url_utils'
 
 export default class SellerCategoriesController {
   /**
@@ -76,13 +76,13 @@ export default class SellerCategoriesController {
         try {
           const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
           await file.moveToDisk(fileName, disk)
-          let uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
+          
           
           if (disk === 'local' && !uploadedUrl.startsWith('/')) {
             uploadedUrl = '/uploads/' + uploadedUrl
           }
           
-          imageUrl = uploadedUrl
+          imageUrl = disk === 'local' ? '/uploads/' + fileName : fileName
         } catch (error) {
           console.error('Erreur lors de l\'upload de l\'image de catégorie:', error)
         }
@@ -139,13 +139,13 @@ export default class SellerCategoriesController {
         try {
           const disk = env.get('NODE_ENV') === 'production' ? 's3' : 'local'
           await file.moveToDisk(fileName, disk)
-          let uploadedUrl = await drive.use(disk).getSignedUrl(fileName, { expiresIn: '1h' })
+          
           
           if (disk === 'local' && !uploadedUrl.startsWith('/')) {
             uploadedUrl = '/uploads/' + uploadedUrl
           }
           
-          imageUrl = uploadedUrl
+          imageUrl = disk === 'local' ? '/uploads/' + fileName : fileName
         } catch (error) {
           console.error('Erreur lors de l\'upload de l\'image de catégorie:', error)
         }
