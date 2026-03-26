@@ -4,6 +4,7 @@ const props = defineProps<{
   type: 'password' | 'email' | 'text'
   id: string
   placeholder: string
+  labelColor?: string
 }>()
 
 const model = defineModel()
@@ -11,7 +12,7 @@ const model = defineModel()
 
 <template>
   <div class="my-2">
-    <label :for="id" class="block text-xs sm:text-sm lg:text-base font-medium text-white mb-1">
+    <label :for="id" :class="`block text-xs sm:text-sm lg:text-base font-medium mb-1 ${labelColor || 'text-black'}`">
       {{ label }}
     </label>
     <input

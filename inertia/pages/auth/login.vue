@@ -109,6 +109,7 @@ function handleSubmit() {
             type="text"
             placeholder="E-mail ou Téléphone"
             label="Identifiant"
+            label-color="text-white"
             v-model="uid"
           />
 
@@ -117,6 +118,7 @@ function handleSubmit() {
             type="password"
             placeholder="Entrer votre mot de passe"
             label="Mot de passe"
+            label-color="text-white"
             v-model="password"
           />
 
@@ -133,6 +135,12 @@ function handleSubmit() {
           <p class="text-description text-sm">
             Vous n'avez pas de compte ?
             <a href="/auth/register" class="text-primary hover:underline font-semibold">S'inscrire</a>
+          </p>
+        </div>
+          <div class="mt-4 text-center">
+          <p class="text-description text-sm">
+            Revenir à la page d'accueil
+            <a href="/" class="text-primary hover:underline font-semibold">Accueil</a>
           </p>
         </div>
 
