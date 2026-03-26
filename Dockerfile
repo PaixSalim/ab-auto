@@ -8,14 +8,11 @@ ADD package.json package-lock.json ./
 RUN npm ci
 
 # Production only deps stage
-# Production only deps stage
 FROM base AS production-deps
 WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
-RUN mkdir -p node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
-    echo "module.exports = {}" > node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js && \
-    echo "module.exports = class LibSQL {}" > node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs
+RUN echo "'use strict'; const K = require('@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3'); module.exports = class LibSQLClient extends K { _driver() { return {}; } };" > node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs
 
 # Build stage
 FROM base AS build
