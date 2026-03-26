@@ -4,7 +4,9 @@ import { ProductState } from '#dto/products_interface'
 
 export default class extends BaseSeeder {
   async run() {
-    await Product.updateOrCreate([
+    await Product.updateOrCreateMany(
+      ['name'],
+      [
       // 🔹 Pneus
       {
         name: 'Pneu Michelin 205/55 R16',

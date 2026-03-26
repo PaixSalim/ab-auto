@@ -22,6 +22,9 @@ export default class extends BaseSeeder {
         type: MediaType.IMAGE
       })
     }
-    await Media.updateOrCreate(medias)
+    await Media.updateOrCreateMany(
+      ['productId'],
+      medias
+    )
   }
 }

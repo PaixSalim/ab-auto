@@ -3,6 +3,6 @@ import { CommentFactory } from '#database/factories/comment_factory'
 
 export default class extends BaseSeeder {
   async run() {
-    await CommentFactory.updateOrCreate(15)
+    await CommentFactory.createMany(15)
   }
 }

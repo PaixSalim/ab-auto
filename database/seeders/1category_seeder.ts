@@ -4,7 +4,9 @@ import Category from '#models/category'
 export default class extends BaseSeeder {
   async run() {
     const base = 'https://auto-cdn.uvatis.com/cat/'
-    await Category.updateOrCreate([
+    await Category.updateOrCreateMany(
+      ['name'],
+      [
       { name: 'Pièces auto', url: `${base}auto.jpg` },
       { name: 'Pièces électriques', url: `${base}piece_electrique.jpg` },
       { name: 'Accessoires auto', url: `${base}accessoires.png` },

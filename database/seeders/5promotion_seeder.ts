@@ -21,7 +21,10 @@ export default class extends BaseSeeder {
       promoEndDate: DateTime.now().plus({ days: 3 }),
     }))
 
-    await Promotion.updateOrCreate(promotionsData)
+    await Promotion.updateOrCreateMany(
+      ['productId'],
+      promotionsData
+    )
 
     console.log(`✅ ${promotionsData.length} promotions ajoutées avec succès !`)
   }

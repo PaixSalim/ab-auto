@@ -41,7 +41,10 @@ export default class extends BaseSeeder {
       }
     ]
 
-    await Promotion.updateOrCreate(promotions)
+    await Promotion.updateOrCreateMany(
+      ['productId'],
+      promotions
+    )
     console.log('Promotions de test créées avec succès')
   }
 }
