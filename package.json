@@ -82,6 +82,7 @@
     "@vue/server-renderer": "^3.5.13",
     "better-sqlite3": "^12.8.0",
     "edge.js": "^6.2.1",
+    "knex": "^2.5.1",
     "lucide-vue-next": "^0.484.0",
     "luxon": "^3.5.0",
     "mysql2": "^3.20.0",
