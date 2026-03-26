@@ -34,31 +34,39 @@ RUN node -e " \
   \
   const dialectsDir = '/app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects'; \
   fs.mkdirSync(dialectsDir, { recursive: true }); \
-  \
-  const sqlite3Stub = [\
-    \"'use strict';\",\
-    \"const ClientBase = require('../client');\",\
-    \"module.exports = class SQLite3Client extends ClientBase {\",\
-    \"  get dialect() { return 'sqlite3'; }\",\
-    \"  get driverName() { return 'sqlite3'; }\",\
-    \"  _driver() { return {}; }\",\
+  const sqlite3Stub = [ \
+    \"'use strict';\", \
+    \"const ClientBase = require('../client');\", \
+    \"module.exports = class SQLite3Client extends ClientBase {\", \
+    \"  get dialect() { return 'sqlite3'; }\", \
+    \"  get driverName() { return 'sqlite3'; }\", \
+    \"  _driver() { return {}; }\", \
     \"};\"\
   ].join('\n'); \
   fs.writeFileSync(path.join(dialectsDir, 'sqlite3.js'), sqlite3Stub); \
   console.log('Patched sqlite3.js'); \
   \
   const libsqlPath = '/app/node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs'; \
-  const libsqlStub = [\
-    \"'use strict';\",\
-    \"const Sqlite3Client = require('knex/lib/dialects/sqlite3');\",\
-    \"module.exports = class LibSQLClient extends Sqlite3Client {\",\
-    \"  _driver() { return {}; }\",\
-    \"  get dialect() { return 'libsql'; }\",\
-    \"  get driverName() { return 'libsql'; }\",\
+  const libsqlStub = [ \
+    \"'use strict';\", \
+    \"const Sqlite3Client = require('knex/lib/dialects/sqlite3');\", \
+    \"module.exports = class LibSQLClient extends Sqlite3Client {\", \
+    \"  _driver() { return {}; }\", \
+    \"  get dialect() { return 'libsql'; }\", \
+    \"  get driverName() { return 'libsql'; }\", \
     \"};\"\
   ].join('\n'); \
   fs.writeFileSync(libsqlPath, libsqlStub); \
   console.log('Patched libsql.cjs'); \
+  \
+  const connPath = '/app/node_modules/@adonisjs/lucid/build/src/connection/index.js'; \
+  let conn = fs.readFileSync(connPath, 'utf8'); \
+  conn = conn.replace( \
+    \"import knex from 'knex';\", \
+    \"import knexPkg from 'knex'; const knex = { knex: knexPkg };\"\
+  ); \
+  fs.writeFileSync(connPath, conn); \
+  console.log('Patched connection/index.js'); \
 "
 
 EXPOSE 8080
