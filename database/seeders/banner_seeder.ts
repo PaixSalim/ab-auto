@@ -35,6 +35,6 @@ export default class extends BaseSeeder {
         image: `${base}banner_ab_auto_5.png`,
       },
     ]
-    await Banner.createMany(banners)
+    await Banner.updateOrCreate(banners)
   }
 }

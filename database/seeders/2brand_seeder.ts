@@ -5,7 +5,7 @@ export default class extends BaseSeeder {
   async run() {
     const urlBase = 'https://auto-cdn.uvatis.com/brands/'
     const catUrlBase = 'https://auto-cdn.uvatis.com/cat/'
-    await Brand.createMany([
+    await Brand.updateOrCreate([
       { name: 'Tout', url: `${urlBase}tous-logo.png` },
       { name: 'Audi', url: `${urlBase}audi.png` },
       { name: 'BMW', url: `${urlBase}bmw.png` },

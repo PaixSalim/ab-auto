@@ -26,6 +26,6 @@ export default class extends BaseSeeder {
         label: 'CFAO',
       },
     ]
-    await Partner.createMany(partners)
+    await Partner.updateOrCreate(partners)
   }
 }

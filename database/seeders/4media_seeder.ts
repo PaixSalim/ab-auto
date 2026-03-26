@@ -22,6 +22,6 @@ export default class extends BaseSeeder {
         type: MediaType.IMAGE
       })
     }
-    await Media.createMany(medias)
+    await Media.updateOrCreate(medias)
   }
 }

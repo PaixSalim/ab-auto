@@ -61,6 +61,6 @@ export default class extends BaseSeeder {
       { group: 'Marques', name: 'Supprimer des marques', slug: 'delete_brands' },
     ]
 
-    await Permission.updateOrCreateMany('slug', permissions)
+    await Permission.updateOrupdateOrCreate('slug', permissions)
   }
 }
