@@ -27,12 +27,24 @@ WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 
-# Neutraliser les clients SQLite que lucid charge inconditionnellement
-RUN printf 'Object.defineProperty(exports, "__esModule", { value: true });\nexports.default = class LibSQLClient {};\n' \
-    > /app/node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs && \
-    mkdir -p /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
-    echo "module.exports = {}" \
-    > /app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js
+# Neutraliser tous les dialectes SQLite chargés inconditionnellement par lucid v21
+RUN node -e " \
+  const fs = require('fs'); \
+  const path = require('path'); \
+  const stub = 'module.exports = {}'; \
+  const libsqlStub = 'Object.defineProperty(exports, \"__esModule\", { value: true }); exports.default = function(){};'; \
+  const dialectsDir = '/app/node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects'; \
+  fs.mkdirSync(dialectsDir, { recursive: true }); \
+  ['sqlite3.js', 'better-sqlite3.js'].forEach(f => { \
+    fs.writeFileSync(path.join(dialectsDir, f), stub); \
+    console.log('Stubbed:', f); \
+  }); \
+  const libsqlPath = '/app/node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs'; \
+  if (fs.existsSync(libsqlPath)) { \
+    fs.writeFileSync(libsqlPath, libsqlStub); \
+    console.log('Stubbed: libsql.cjs'); \
+  } \
+"
 
 EXPOSE 8080
 CMD ["node", "./bin/server.js"]
