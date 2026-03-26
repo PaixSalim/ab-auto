@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
 const props = defineProps<{
   products?: number
@@ -7,7 +8,12 @@ const props = defineProps<{
   comments?: number
 }>()
 
+const page = usePage()
+const user = computed(() => (page.props as any).auth?.user)
+const isValidated = computed(() => user.value?.isValidated === true || user.value?.isValidated === 1)
+
 const goTo = (route: string) => {
+  if (!isValidated.value) return
   router.visit(route)
 }
 
@@ -17,7 +23,7 @@ const getStats = (products: number, orders: number, comments: number) => [
     label: "Mes Produits",
     value: products || 0,
     icon: "i-mdi-package-variant",
-    bgGradient: "from-blue-600 to-blue-800",
+    bgGradient: isValidated.value ? "from-blue-600 to-blue-800" : "from-gray-600 to-gray-700",
     iconBg: "bg-blue-500",
     textColor: "text-blue-200",
     route: "/seller/products"
@@ -26,7 +32,7 @@ const getStats = (products: number, orders: number, comments: number) => [
     label: "Commandes",
     value: orders || 0,
     icon: "i-mdi-cart",
-    bgGradient: "from-green-600 to-green-800",
+    bgGradient: isValidated.value ? "from-green-600 to-green-800" : "from-gray-600 to-gray-700",
     iconBg: "bg-green-500",
     textColor: "text-green-200",
     route: "/seller/orders"
@@ -35,7 +41,7 @@ const getStats = (products: number, orders: number, comments: number) => [
     label: "Commentaires",
     value: comments || 0,
     icon: "i-mdi-comment-multiple",
-    bgGradient: "from-purple-600 to-purple-800",
+    bgGradient: isValidated.value ? "from-purple-600 to-purple-800" : "from-gray-600 to-gray-700",
     iconBg: "bg-purple-500",
     textColor: "text-purple-200",
     route: "/seller/comments"
@@ -51,10 +57,18 @@ const getStats = (products: number, orders: number, comments: number) => [
       <div
         v-for="stat in getStats(products || 0, orders || 0, comments || 0)"
         :key="stat.label"
-        class="bg-gradient-to-br rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105 cursor-pointer"
-        :class="stat.bgGradient"
+        class="relative group bg-gradient-to-br rounded-xl shadow-lg overflow-hidden transition-all duration-300"
+        :class="[
+          stat.bgGradient,
+          isValidated ? 'hover:shadow-2xl hover:scale-105 cursor-pointer' : 'opacity-60 cursor-not-allowed grayscale'
+        ]"
         @click="goTo(stat.route)"
       >
+        <!-- Lock Overlay for Stats -->
+        <div v-if="!isValidated" class="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
+          <div class="i-mdi-lock text-4xl text-white/50" />
+        </div>
+
         <div class="px-6 py-8 flex items-center">
           <div class="flex items-center justify-center w-12 h-12 rounded-full bg-opacity-30" :class="stat.iconBg">
             <div :class="['text-3xl text-white', stat.icon]"></div>

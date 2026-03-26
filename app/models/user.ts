@@ -79,6 +79,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return this.roles.some((role) => role.slug === 'seller')
   }
 
+  async hasPermission(slug: string) {
+    await this.load('roles' as any, (roleQuery: any) => {
+      roleQuery.preload('permissions')
+    })
+    return this.roles.some((role) => role.permissions.some((permission) => permission.slug === slug))
+  }
+
   async isSuperAdmin() {
     await this.load('roles' as any)
     return this.roles.some((role) => role.slug === 'superadmin')

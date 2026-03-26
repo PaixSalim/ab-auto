@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import InputComponent from '~/components/auth/form/InputComponent.vue'
 import MessagePopup from '~/components/admin/product/MessagePopup.vue'
 import { PopupType } from '#utils/popup_type_utils'
@@ -100,7 +100,7 @@ function handleSubmit() {
       popupMessage.value = 'Compte créé avec succès !'
       setTimeout(() => {
         close()
-        router.visit('/')
+        router.visit(userType.value === 'seller' ? '/seller' : '/')
       }, 1500)
     },
     onError: (errors) => {
@@ -115,95 +115,103 @@ function handleSubmit() {
 
 <template>
   <transition name="fade">
-    <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative animate-in fade-in zoom-in duration-300">
+    <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div class="bg-background-admin border border-white/10 rounded-3xl w-full max-w-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative animate-in fade-in zoom-in duration-300">
+        
+        <!-- Decoration Gradient -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+
         <!-- Close button -->
-        <button @click="close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition p-2">
-          <div class="i-mdi-close h-6 w-6" />
+        <button @click="close" class="absolute top-5 right-5 text-description hover:text-white transition-all bg-white/5 hover:bg-white/10 p-2 rounded-full">
+          <div class="i-mdi-close h-5 w-5" />
         </button>
 
-        <div class="p-8">
+        <div class="p-8 relative">
           <div class="flex justify-center mb-6">
-            <img class="h-16 rounded-xl" src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo Auto-pro" />
+            <div class="relative">
+              <div class="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+              <img class="h-16 relative rounded-xl" src="https://auto-cdn.uvatis.com/logo/logo.png" alt="Logo Auto-pro" />
+            </div>
           </div>
 
-          <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
-            {{ step === 1 ? 'Créer un compte' : (userType === 'seller' ? 'Devenir Vendeur' : 'Inscription Client') }}
+          <h2 class="text-3xl font-extrabold text-white text-center mb-2 tracking-tight">
+            {{ step === 1 ? 'Rejoindre AB Auto' : (userType === 'seller' ? 'Devenir Vendeur' : 'Créer un compte') }}
           </h2>
-          <p class="text-gray-600 text-center mb-8 text-sm">
-            {{ step === 1 ? 'Choisissez le type de compte qui vous correspond' : 'Veuillez remplir les informations ci-dessous' }}
+          <p class="text-description text-center mb-8 text-sm font-medium">
+            {{ step === 1 ? 'Choisissez votre profil pour commencer' : 'Rejoignez la communauté AB Auto dès aujourd\'hui' }}
           </p>
 
           <!-- Step 1: Selection -->
           <div v-if="step === 1" class="space-y-4">
             <button 
               @click="handleSelectType('customer')"
-              class="w-full flex items-center gap-4 p-4 border-2 border-gray-100 rounded-2xl hover:border-primary/30 hover:bg-primary/5 transition group text-left"
+              class="w-full flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group text-left relative overflow-hidden"
             >
-              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition">
-                <div class="i-mdi-account text-primary h-6 w-6" />
+              <div class="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/0 group-hover:to-primary/5 transition-all duration-500"></div>
+              <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="i-mdi-account text-primary h-7 w-7" />
               </div>
-              <div>
-                <h3 class="font-bold text-gray-900">Client simple</h3>
-                <p class="text-xs text-gray-600">Pour acheter et suivre vos commandes</p>
+              <div class="relative">
+                <h3 class="font-bold text-white text-lg">Client</h3>
+                <p class="text-sm text-description group-hover:text-gray-300 transition-colors">Achetez en toute simplicité</p>
               </div>
-              <div class="i-mdi-chevron-right ml-auto text-gray-400 group-hover:text-primary transition h-5 w-5" />
+              <div class="i-mdi-arrow-right ml-auto text-description group-hover:text-primary group-hover:translate-x-1 transition-all h-6 w-6" />
             </button>
 
             <button 
               @click="handleSelectType('seller')"
-              class="w-full flex items-center gap-4 p-4 border-2 border-gray-100 rounded-2xl hover:border-primary/30 hover:bg-primary/5 transition group text-left"
+              class="w-full flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group text-left relative overflow-hidden"
             >
-              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition">
-                <div class="i-mdi-store text-primary h-6 w-6" />
+              <div class="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/0 group-hover:to-primary/5 transition-all duration-500"></div>
+              <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="i-mdi-store text-primary h-7 w-7" />
               </div>
-              <div>
-                <h3 class="font-bold text-gray-900">Vendeur professionnel</h3>
-                <p class="text-xs text-gray-600">Pour vendre vos véhicules et accessoires</p>
+              <div class="relative">
+                <h3 class="font-bold text-white text-lg">Vendeur Pro</h3>
+                <p class="text-sm text-description group-hover:text-gray-300 transition-colors">Boostez vos ventes de véhicules</p>
               </div>
-              <div class="i-mdi-chevron-right ml-auto text-gray-400 group-hover:text-primary transition h-5 w-5" />
+              <div class="i-mdi-arrow-right ml-auto text-description group-hover:text-primary group-hover:translate-x-1 transition-all h-6 w-6" />
             </button>
           </div>
 
           <!-- Step 2: Form -->
-          <form v-else @submit.prevent="handleSubmit" class="space-y-4 max-h-[60vh] overflow-y-auto px-1 custom-scrollbar">
-            <InputComponent
-              id="fullName"
-              type="text"
-              :placeholder="userType === 'seller' ? 'Nom du contact' : 'Entrez votre nom complet'"
-              :label="userType === 'seller' ? 'Nom complet du contact' : 'Nom complet'"
-              v-model="form.fullName"
-              required
-            />
-
-            <template v-if="userType === 'seller'">
+          <form v-else @submit.prevent="handleSubmit" class="space-y-5 max-h-[60vh] overflow-y-auto px-1 custom-scrollbar scroll-smooth">
+            <div class="space-y-1">
               <InputComponent
+                id="fullName"
+                type="text"
+                :placeholder="userType === 'seller' ? 'Ex: Garage de l\'Espace' : 'Votre nom complet'"
+                :label="userType === 'seller' ? 'Nom de la structure' : 'Nom complet'"
+                v-model="form.fullName"
+                required
+              />
+            </div>
+
+            <div v-if="userType === 'seller'" class="space-y-4 animate-in slide-in-from-left duration-300">
+               <InputComponent
                 id="companyName"
                 type="text"
-                placeholder="Nom de votre boutique"
-                label="Nom de l'entreprise / Boutique"
+                placeholder="Nom commercial"
+                label="Nom commercial / Boutique"
                 v-model="form.companyName"
                 required
               />
-            </template>
-
-            <template v-if="userType === 'seller'">
               <InputComponent
                 id="email"
                 type="email"
                 placeholder="votre@email.com"
-                label="Email"
+                label="Email professionnel (Optionnel)"
                 v-model="form.email"
-                required
               />
-            </template>
+            </div>
 
             <div class="grid gap-4" :class="userType === 'seller' ? 'grid-cols-2' : 'grid-cols-1'">
               <InputComponent
                 id="phone"
                 type="text"
-                placeholder="Numéro de téléphone"
-                label="Téléphone"
+                placeholder="+226 ..."
+                label="Téléphone (Obligatoire)"
                 v-model="form.phone"
                 required
               />
@@ -211,7 +219,7 @@ function handleSubmit() {
                 v-if="userType === 'seller'"
                 id="city"
                 type="text"
-                placeholder="Votre ville"
+                placeholder="Ville"
                 label="Ville"
                 v-model="form.city"
                 required
@@ -222,54 +230,55 @@ function handleSubmit() {
               <InputComponent
                 id="neighborhood"
                 type="text"
-                placeholder="Votre quartier"
-                label="Quartier"
+                placeholder="Ex: Cocody Angré"
+                label="Quartier / Zone"
                 v-model="form.neighborhood"
                 required
               />
             </template>
 
-            <InputComponent
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              label="Mot de passe"
-              v-model="form.password"
-              required
-            />
+            <div class="grid grid-cols-2 gap-4">
+              <InputComponent
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                label="Mot de passe"
+                v-model="form.password"
+                required
+              />
+              <InputComponent
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                label="Confirmation"
+                v-model="form.confirmPassword"
+                required
+              />
+            </div>
 
-            <InputComponent
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              label="Confirmer le mot de passe"
-              v-model="form.confirmPassword"
-              required
-            />
-
-            <div class="flex gap-3 pt-4 sticky bottom-0 bg-white">
+            <div class="flex gap-4 pt-6 sticky bottom-0 bg-background-admin/90 backdrop-blur-sm pb-2">
               <button
                 type="button"
                 @click="backToType"
-                class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-gray-700 hover:bg-gray-50 transition"
+                class="flex-1 px-4 py-4 rounded-2xl border border-white/10 font-bold text-description hover:text-white hover:bg-white/5 transition-all duration-300"
               >
                 Retour
               </button>
               <button
                 type="submit"
-                class="flex-[2] bg-primary text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                class="flex-[2] bg-primary text-white px-4 py-4 rounded-2xl font-black uppercase tracking-wider shadow-[0_10px_30px_rgba(190,22,34,0.3)] hover:shadow-[0_15px_40px_rgba(190,22,34,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
                 :disabled="isLoading"
               >
                 <div v-if="isLoading" class="i-line-md:loading-loop w-5 h-5" />
-                {{ isLoading ? 'Création...' : (userType === 'seller' ? 'Devenir Vendeur' : 'S\'inscrire') }}
+                {{ isLoading ? 'Action...' : (userType === 'seller' ? 'Lancer ma boutique' : 'Créer mon compte') }}
               </button>
             </div>
           </form>
 
-          <div v-if="step === 1" class="mt-8 text-center">
-            <p class="text-gray-600 text-sm">
-              Vous avez déjà un compte ?
-              <Link href="/auth/login" class="text-primary hover:underline font-bold ml-1">Se connecter</Link>
+          <div v-if="step === 1" class="mt-10 text-center animate-in fade-in slide-in-from-bottom duration-500 delay-200">
+            <p class="text-description text-sm flex items-center justify-center gap-2">
+              Déjà membre ?
+              <Link href="/auth/login" class="text-primary hover:text-white hover:underline font-extrabold transition-all">Se connecter</Link>
             </p>
           </div>
         </div>

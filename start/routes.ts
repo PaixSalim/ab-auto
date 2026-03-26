@@ -78,6 +78,7 @@ router
         router.get('/', [SellersController, 'index']).as('index')
         router.post('create', [SellersController, 'create']).as('create')
         router.put('edit', [SellersController, 'edit']).as('edit')
+        router.put('toggle-validation/:id', [SellersController, 'toggleValidation']).as('toggle')
         router.delete('delete/:id', [SellersController, 'delete']).as('delete')
       })
       .prefix('sellers')
@@ -395,3 +396,7 @@ router.get('/test/status', async ({ response }) => {
 })
 
 router.get('/test/db-status', [CheckDbStatusesController, 'index'])
+router.get('/debug/users', async ({ response }) => {
+  const { default: DebugUsersController } = await import('#controllers/debug_users_controller')
+  return new DebugUsersController().index({ response } as any)
+})

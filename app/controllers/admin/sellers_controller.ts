@@ -1,14 +1,20 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import Role from '#models/role'
 import { UserStatus } from '#dto/user_types'
 import vine from '@vinejs/vine'
+import RegistrationNumberGeneratorService from '#services/registration_number_generator_service'
 
 export default class SellersController {
   /**
    * Liste des vendeurs
    */
-  async index({ inertia }: HttpContext) {
-    const sellers = await User.query().where('role', UserStatus.SELLER).orderBy('created_at', 'desc')
+  async index({ inertia, request }: HttpContext) {
+    const page = Number(request.input('page', 1))
+    const sellers = await User.query()
+      .where('role', UserStatus.SELLER)
+      .orderBy('created_at', 'desc')
+      .paginate(page, 10)
 
     return inertia.render('admin/sellers/index', { sellers })
   }
@@ -20,22 +26,33 @@ export default class SellersController {
     const schema = vine.compile(
       vine.object({
         fullName: vine.string().trim().minLength(3),
-        email: vine.string().email().normalizeEmail(),
+        email: vine.string().email().normalizeEmail().unique({ table: 'users', column: 'email' }).optional(),
         password: vine.string().minLength(8),
-        phone: vine.string().trim().optional(),
+        phone: vine.string().trim().unique({ table: 'users', column: 'phone' }),
       })
     )
 
     try {
       const data = await request.validateUsing(schema)
 
-      await User.create({
+      // Normalisation du téléphone
+      const cleanPhone = data.phone.replace(/[^\d+]/g, '')
+
+      const user = await User.create({
         fullName: data.fullName,
-        email: data.email,
+        email: data.email || null,
         password: data.password,
-        phone: data.phone || null,
+        phone: cleanPhone,
         role: UserStatus.SELLER,
+        isValidated: true,
+        registrationNumber: await RegistrationNumberGeneratorService.generate(),
       })
+
+      // Assigner le rôle dans la table pivot
+      const role = await Role.findBy('slug', 'seller')
+      if (role) {
+        await user.related('roles').attach([role.id])
+      }
 
       session.flash('notification', {
         type: 'success',
@@ -46,22 +63,22 @@ export default class SellersController {
     } catch (error) {
       session.flash('notification', {
         type: 'error',
-        message: 'Erreur lors de la création du vendeur'
+        message: 'Erreur lors de la création du vendeur: ' + (error.messages ? 'Données invalides' : error.message)
       })
       return response.redirect().back()
     }
   }
 
   /**
-   * Supprimer un vendeur
+   * Modifier un vendeur
    */
   async edit({ request, response, session }: HttpContext) {
     const schema = vine.compile(
       vine.object({
         id: vine.number(),
         fullName: vine.string().trim().minLength(3),
-        email: vine.string().email().normalizeEmail(),
-        phone: vine.string().trim().optional(),
+        email: vine.string().email().normalizeEmail().optional(),
+        phone: vine.string().trim(),
         password: vine.string().minLength(8).optional(),
       })
     )
@@ -75,9 +92,12 @@ export default class SellersController {
         return response.redirect().back()
       }
 
+      // Normalisation du téléphone
+      const cleanPhone = data.phone.replace(/[^\d+]/g, '')
+
       seller.fullName = data.fullName
-      seller.email = data.email
-      seller.phone = data.phone || null
+      seller.email = data.email || null
+      seller.phone = cleanPhone
       if (data.password) seller.password = data.password
       await seller.save()
 
@@ -114,6 +134,33 @@ export default class SellersController {
         type: 'error',
         message: 'Erreur lors de la suppression du vendeur'
       })
+      return response.redirect().back()
+    }
+  }
+
+  /**
+   * Activer ou désactiver un vendeur
+   */
+  async toggleValidation({ params, response, session }: HttpContext) {
+    try {
+      const seller = await User.findOrFail(params.id)
+
+      if (seller.role !== UserStatus.SELLER) {
+        session.flash('notification', { type: 'error', message: 'Vendeur introuvable' })
+        return response.redirect().back()
+      }
+
+      seller.isValidated = !seller.isValidated
+      await seller.save()
+
+      session.flash('notification', {
+        type: 'success',
+        message: seller.isValidated ? 'Vendeur activé avec succès' : 'Vendeur désactivé avec succès'
+      })
+
+      return response.redirect().back()
+    } catch (error) {
+      session.flash('notification', { type: 'error', message: 'Erreur lors du changement de statut' })
       return response.redirect().back()
     }
   }

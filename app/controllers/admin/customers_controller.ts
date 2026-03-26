@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import Role from '#models/role'
 import { UserStatus } from '#dto/user_types'
 import vine from '@vinejs/vine'
 
@@ -25,13 +26,20 @@ export default class CustomersController {
     try {
       const data = await request.validateUsing(schema)
 
-      await User.create({
+      const user = await User.create({
         fullName: data.fullName,
         email: data.email,
         password: data.password,
         phone: data.phone || null,
         role: UserStatus.CUSTOMER,
+        isValidated: true,
       })
+
+      // Assigner le rôle dans la table pivot
+      const role = await Role.findBy('slug', 'customer')
+      if (role) {
+        await user.related('roles').attach([role.id])
+      }
 
       session.flash('notification', { type: 'success', message: 'Client créé avec succès' })
       return response.redirect().back()

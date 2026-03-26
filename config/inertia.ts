@@ -38,6 +38,8 @@ const inertiaConfig = defineConfig({
           email: user.email,
           fullName: user.fullName,
           role: user.role,
+          isValidated: user.isValidated,
+          companyName: user.companyName,
         },
         roles: roleNames,
         permissions: permissionSlugs,
