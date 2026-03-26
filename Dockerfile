@@ -7,6 +7,7 @@ WORKDIR /app
 ADD package.json package-lock.json ./
 RUN npm ci
 
+
 # Production only deps stage
 FROM base AS production-deps
 WORKDIR /app
