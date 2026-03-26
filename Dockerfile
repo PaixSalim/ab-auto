@@ -15,7 +15,7 @@ ADD package.json package-lock.json ./
 RUN npm ci --omit=dev
 RUN mkdir -p node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects && \
     echo "module.exports = {}" > node_modules/@adonisjs/lucid/node_modules/knex/lib/dialects/sqlite3.js && \
-    echo "module.exports = {}" > node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs
+    echo "module.exports = class LibSQL {}" > node_modules/@adonisjs/lucid/build/src/clients/libsql.cjs
 
 # Build stage
 FROM base AS build
