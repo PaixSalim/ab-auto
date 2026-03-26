@@ -78,6 +78,7 @@
     "@google/generative-ai": "^0.24.0",
     "@headlessui/vue": "^1.7.23",
     "@inertiajs/vue3": "^2.0.3",
+    "@libsql/sqlite3": "^0.3.1",
     "@vinejs/vine": "^3.0.0",
     "@vue/server-renderer": "^3.5.13",
     "better-sqlite3": "^12.8.0",
