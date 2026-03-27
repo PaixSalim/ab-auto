@@ -214,13 +214,13 @@
 
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-3 mb-6">
-              <button
+              <!-- <button
                 @click="addToCart"
                 class="flex-1 py-3 bg-primary hover:bg-primary-hover text-white rounded-md transition-colors flex items-center justify-center gap-2"
               >
                 <div class="i-mdi-cart-outline w-5 h-5" />
                 Lancer la commande
-              </button>
+              </button> -->
               <button
                 @click="callCommercial"
                 class="flex gap-2 justify-center items-center py-3 px-4 border border-primary text-primary hover:bg-primary-light rounded-md transition-colors"
@@ -251,7 +251,7 @@
                 </div>
                 <div>
                   <p class="text-text-secondary mb-1">Livraison estimée</p>
-                  <p class="font-medium">3-7 jours ouvrés</p>
+                  <p class="font-medium">contact le vendeur pour les informations</p>
                 </div>
               </div>
             </div>
@@ -317,22 +317,13 @@
             <h2 class="text-xl font-semibold text-text-title mb-4">Informations de livraison</h2>
             <div class="space-y-6">
               <div class="flex items-start gap-4 p-4 border border-background-tertiary rounded-lg">
-                <TruckIcon class="w-8 h-8 text-primary" />
-                <div>
-                  <h3 class="font-medium text-text-title mb-1">Livraison standard</h3>
-                  <p class="text-text-body mb-2">Livraison en 3-7 jours ouvrables</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-4 p-4 border border-background-tertiary rounded-lg">
                 <StoreIcon class="w-8 h-8 text-primary" />
                 <div>
-                  <h3 class="font-medium text-text-title mb-1">Retrait en magasin</h3>
-                  <p class="text-text-body mb-2">Disponible sous 2h dans nos magasins</p>
-                  <p class="text-text-secondary text-sm">Gratuit</p>
+                  <h3 class="font-medium text-text-title mb-1">Contactez le vendeur</h3>
+                  <p class="text-text-body mb-2">Pour plus d'informations sur la livraison, veuillez contacter directement le vendeur.</p>
+                  <p class="text-text-secondary text-sm">Disponibilite et modalites sur demande</p>
                 </div>
               </div>
-
             </div>
             <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div class="flex items-center gap-3">
@@ -494,6 +485,7 @@
       <AuthRequiredModal
         v-model="showAuthModal"
         :action="authAction"
+        :allowGuest="authAction === 'contact'"
         @continue-as-guest="handleGuestAction"
       />
 
@@ -517,7 +509,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { MinusIcon, PlusIcon, StoreIcon, TruckIcon } from 'lucide-vue-next'
+import { MinusIcon, PlusIcon, StoreIcon } from 'lucide-vue-next'
 import SimilarProducts from '~/components/product/sections/SimilarProducts.vue'
 import { router } from '@inertiajs/vue3'
 import OrderModal from '~/components/product/OrderModal.vue'
@@ -542,7 +534,7 @@ const showOrderModal = ref(false)
 const showOrderConfirmation = ref(false)
 const showCopyLink = ref(false)
 const showAuthModal = ref(false)
-const authAction = ref<'order' | 'comment'>('order')
+const authAction = ref<'order' | 'comment' | 'contact'>('order')
 
 const tabs = [
   { id: 'description', name: 'Description' },
@@ -553,6 +545,13 @@ const tabs = [
 const handleGuestAction = () => {
   if (authAction.value === 'order') {
     showOrderModal.value = true
+  } else if (authAction.value === 'contact') {
+    // Permettre le contact même en tant qu'invité
+    const sellerPhone = props.product.seller?.phone
+    const defaultPhone = '22607513333'
+    const phone = sellerPhone || defaultPhone
+    
+    window.location.href = `https://api.whatsapp.com/send?phone=${phone}`
   }
   // Pour les commentaires, on pourrait permettre de commenter en tant qu'invité
 }
@@ -575,12 +574,17 @@ const addToCart = () => {
 }
 
 const callCommercial = () => {
-  // Utiliser le téléphone du vendeur, ou fallback sur le contact par défaut
-  const sellerPhone = props.product.seller?.phone
-  const defaultPhone = '22607513333'
-  const phone = sellerPhone || defaultPhone
-  
-  window.location.href = `https://api.whatsapp.com/send?phone=${phone}`
+  if (!user.value) {
+    showAuthModal.value = true
+    authAction.value = 'contact'
+  } else {
+    // Utiliser le téléphone du vendeur, ou fallback sur le contact par défaut
+    const sellerPhone = props.product.seller?.phone
+    const defaultPhone = '22607513333'
+    const phone = sellerPhone || defaultPhone
+    
+    window.location.href = `https://api.whatsapp.com/send?phone=${phone}`
+  }
 }
 
 const sendMessage = () => {

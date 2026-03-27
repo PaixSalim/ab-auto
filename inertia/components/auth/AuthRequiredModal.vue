@@ -37,12 +37,19 @@
               </svg>
             </div>
             <h4 class="text-lg font-semibold text-gray-900 mb-2">
-              {{ action === 'order' ? 'Connectez-vous pour commander' : 'Connectez-vous pour commenter' }}
+              {{ 
+                action === 'order' ? 'Connectez-vous pour commander' : 
+                action === 'comment' ? 'Connectez-vous pour commenter' : 
+                'Connectez-vous pour contacter le vendeur' 
+              }}
             </h4>
             <p class="text-gray-600">
-              {{ action === 'order' 
-                ? 'Pour passer une commande, vous devez être connecté à votre compte.' 
-                : 'Pour laisser un commentaire, vous devez être connecté à votre compte.' 
+              {{ 
+                action === 'order' 
+                  ? 'Pour passer une commande, vous devez être connecté à votre compte.' 
+                  : action === 'comment'
+                    ? 'Pour laisser un commentaire, vous devez être connecté à votre compte.'
+                    : 'Pour contacter le vendeur, vous devez être connecté à votre compte.'
               }}
             </p>
           </div>
@@ -71,7 +78,11 @@
                 @click="continueAsGuest"
                 class="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
-                Continuer sans connexion
+                {{ 
+                  action === 'order' ? 'Continuer comme invité' :
+                  action === 'comment' ? 'Commenter comme invité' :
+                  'Contacter comme invité'
+                }}
               </button>
             </div>
           </div>
@@ -86,7 +97,7 @@ import { router } from '@inertiajs/vue3'
 
 const props = defineProps<{
   modelValue: boolean
-  action: 'order' | 'comment'
+  action: 'order' | 'comment' | 'contact'
   allowGuest?: boolean
 }>()
 
