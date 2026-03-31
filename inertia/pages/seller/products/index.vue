@@ -116,7 +116,7 @@
                     type="text"
                     class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     required
-                    placeholder="Ex: iPhone 15 Pro Max"
+                    placeholder="Ex: pièce de rechange"
                   />
                 </div>
 

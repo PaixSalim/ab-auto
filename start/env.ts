@@ -25,6 +25,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
   // GEMINI_API_KEY: Env.schema.string(),
+  
 
   /*
   |----------------------------------------------------------
@@ -37,6 +38,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   // R2_BUCKET: Env.schema.string(),
   // R2_ENDPOINT: Env.schema.string(),
 GEMINI_API_KEY: Env.schema.string.optional(),
+GROQ_API_KEY: Env.schema.string.optional(),
 DRIVE_DISK: Env.schema.string.optional(),
 R2_KEY: Env.schema.string.optional(),
 R2_SECRET: Env.schema.string.optional(),
