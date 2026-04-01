@@ -4,15 +4,16 @@
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
-  "scripts": {
-    "start": "node bin/server.js",
-    "build": "node ace build --ignore-ts-errors",
-    "dev": "node ace serve --hmr",
-    "test": "node ace test",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
-  },
+ "scripts": {
+  "start": "node bin/server.js",
+  "build": "node ace build --ignore-ts-errors",
+  "dev": "node ace serve --hmr",
+  "test": "node ace test",
+  "lint": "eslint .",
+  "format": "prettier --write .",
+  "typecheck": "tsc --noEmit",
+  "postinstall": "node scripts/patch-knex.mjs"
+},
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
