@@ -27,22 +27,23 @@ WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 
-# Patcher les dialectes SQLite non disponibles en prod
 # Patch knex ESM exports
-RUN node -e " \
-  const fs = require('fs'); \
-  const p = '/app/node_modules/@adonisjs/lucid/node_modules/knex/package.json'; \
-  if (fs.existsSync(p)) { \
-    const pkg = JSON.parse(fs.readFileSync(p, 'utf-8')); \
-    pkg.exports = { '.': { require: './knex.js', import: './knex.js', default: './knex.js' } }; \
-    fs.writeFileSync(p, JSON.stringify(pkg, null, 2)); \
-    console.log('knex patched'); \
-  } else { \
-    console.log('knex package.json not found at: ' + p); \
-    const files = fs.readdirSync('/app/node_modules/@adonisjs/lucid/node_modules/'); \
-    console.log('Available:', files.join(', ')); \
-  } \
-"
+RUN node --input-type=module <<'EOF'
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
+
+const p = '/app/node_modules/@adonisjs/lucid/node_modules/knex/package.json'
+
+if (existsSync(p)) {
+  const pkg = JSON.parse(readFileSync(p, 'utf-8'))
+  pkg.exports = { '.': { require: './knex.js', import: './knex.js', default: './knex.js' } }
+  writeFileSync(p, JSON.stringify(pkg, null, 2))
+  console.log('knex patched')
+} else {
+  console.log('knex package.json not found at: ' + p)
+  const files = readdirSync('/app/node_modules/@adonisjs/lucid/node_modules/')
+  console.log('Available:', files.join(', '))
+}
+EOF
 
 EXPOSE 8080
 # CMD ["sh", "-c", "node ace migration:run --force && node ace db:seed --files database/seeders/0system_setup_seeder.ts && node ace db:seed --files database/seeders/permission_seeder.ts && node ace db:seed --files database/seeders/role_seeder.ts && node ace db:seed --files database/seeders/1category_seeder.ts && node ace db:seed --files database/seeders/2brand_seeder.ts && node ace db:seed --files database/seeders/3product_seeder.ts && node ace db:seed --files database/seeders/6user_seeder.ts && node ace db:seed --files database/seeders/comment_seeder.ts && node ./bin/server.js"]
