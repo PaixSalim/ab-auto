@@ -31,17 +31,26 @@ COPY --from=build /app/build /app
 RUN node --input-type=module <<'EOF'
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
 
-const p = '/app/node_modules/@adonisjs/lucid/node_modules/knex/package.json'
+const paths = [
+  '/app/node_modules/@adonisjs/lucid/node_modules/knex/package.json',
+  '/app/node_modules/knex/package.json'
+]
 
-if (existsSync(p)) {
-  const pkg = JSON.parse(readFileSync(p, 'utf-8'))
-  pkg.exports = { '.': { require: './knex.js', import: './knex.js', default: './knex.js' } }
-  writeFileSync(p, JSON.stringify(pkg, null, 2))
-  console.log('knex patched')
-} else {
-  console.log('knex package.json not found at: ' + p)
-  const files = readdirSync('/app/node_modules/@adonisjs/lucid/node_modules/')
-  console.log('Available:', files.join(', '))
+let patched = false
+for (const p of paths) {
+  if (existsSync(p)) {
+    const pkg = JSON.parse(readFileSync(p, 'utf-8'))
+    pkg.exports = { '.': { require: './knex.js', import: './knex.js', default: './knex.js' } }
+    writeFileSync(p, JSON.stringify(pkg, null, 2))
+    console.log('knex patched at: ' + p)
+    patched = true
+  }
+}
+
+if (!patched) {
+  console.log('knex not found, listing node_modules...')
+  const dirs = readdirSync('/app/node_modules/').filter(d => d.includes('knex'))
+  console.log('knex-related:', dirs.join(', '))
 }
 EOF
 
