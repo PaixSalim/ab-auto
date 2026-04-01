@@ -12,7 +12,7 @@
   "lint": "eslint .",
   "format": "prettier --write .",
   "typecheck": "tsc --noEmit",
-  "postinstall": "node scripts/patch-knex.mjs"
+  "postinstall": "node -e \"import('fs').then(({readFileSync,writeFileSync,existsSync})=>{const p='node_modules/@adonisjs/lucid/node_modules/knex/package.json';if(existsSync(p)){const pkg=JSON.parse(readFileSync(p,'utf-8'));pkg.exports={'.':{'require':'./knex.js','import':'./knex.js','default':'./knex.js'}};writeFileSync(p,JSON.stringify(pkg,null,2));console.log('knex patched')}else{console.log('knex not found')}})\""
 },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
